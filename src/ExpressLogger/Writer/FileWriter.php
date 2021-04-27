@@ -9,6 +9,7 @@
 
 namespace ExpressLogger\Writer;
 
+use ExpressLogger\Filter\FilterCollectionTrait;
 use ExpressLogger\API\{FilterCollectionInterface, FormatterInterface, WriterInterface};
 use ExpressLogger\Formatter\JsonFormatter;
 
@@ -68,6 +69,9 @@ class FileWriter implements WriterInterface, FilterCollectionInterface
         }
 
         $log = $this->applyFilters($log);
+        if (false === $log) {
+            return false;
+        }
 
         if (!$this->canLog($log['level_code'] ?? $this->codeLevelMin)) {
             return false;
@@ -92,6 +96,11 @@ class FileWriter implements WriterInterface, FilterCollectionInterface
         $count = 0;
         $msg = '';
         foreach ($logs as $data) {
+            $log = $this->applyFilters($data);
+            if (false === $log) {
+                continue;
+            }
+
             if (!$this->canLog($data['level_code'] ?? $this->codeLevelMin)) {
                 continue;
             }
@@ -109,14 +118,12 @@ class FileWriter implements WriterInterface, FilterCollectionInterface
      */
     public function open(): bool
     {
-        if (is_resource($this->resource)) {
-            return true;
-        }
-        $ok = (($this->resource = fopen($this->path, 'ab')) !== false);
-        if (!$ok) {
+        $this->resource = fopen($this->path, 'ab');
+        if (false === $this->resource) {
             $this->isDisabled = true;
+            return false;
         }
-        return $ok;
+        return true;
     }
 
     /**

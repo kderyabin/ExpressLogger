@@ -11,20 +11,22 @@ declare(strict_types=1);
 
 namespace ExpressLogger\Writer;
 
-use ExpressLogger\API\{FormatterInterface, WriterInterface};
+use ExpressLogger\Filter\FilterCollectionTrait;
+use ExpressLogger\API\{FilterCollectionInterface, FormatterInterface, WriterInterface};
 use ExpressLogger\Formatter\JsonFormatter;
 
 /**
  * Class ErrorLogWriter is a wrapper for error_log() function.
  * Sends a message to the web server's error log or to a file according to php settings.
  *
- * @package ExpressLogger\Handlers
+ * @package Logger\Handlers
  * @see http://php.net/manual/function.error-log.php
  * @see http://php.net/manual/errorfunc.configuration.php#ini.error-log
  */
-class ErrorLogWriter implements WriterInterface
+class ErrorLogWriter implements WriterInterface, FilterCollectionInterface
 {
     use LogLevelTrait;
+    use FilterCollectionTrait;
 
     /**
      * Formatter used for this handler
@@ -38,12 +40,20 @@ class ErrorLogWriter implements WriterInterface
     }
 
     /**
-     * @param array $data
+     * @param array $log
      * @return bool
      */
-    public function write(array $data): bool
+    public function write(array $log): bool
     {
-        return error_log($this->formatter->format($data));
+        $log = $this->applyFilters($log);
+        if (false === $log) {
+            return false;
+        }
+
+        if (!$this->canLog($log['level_code'] ?? $this->codeLevelMin)) {
+            return false;
+        }
+        return error_log($this->formatter->format($log));
     }
 
     public function process(array $logs): int
@@ -52,6 +62,10 @@ class ErrorLogWriter implements WriterInterface
         $sizeLimit = ini_get('log_errors_max_len');
         ini_set('log_errors_max_len', '0');
         foreach ($logs as $log) {
+            $log = $this->applyFilters($log);
+            if (false === $log) {
+                continue;
+            }
             if (!$this->canLog($log['level_code'] ?? $this->codeLevelMin)) {
                 continue;
             }

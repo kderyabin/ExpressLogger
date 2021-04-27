@@ -8,37 +8,35 @@
 
 namespace ExpressLogger\Tests;
 
-use ExpressLogger\Formatter\JsonFormatter;
-use ExpressLogger\Formatter\JsonPrettyFormatter;
-use ExpressLogger\Formatter\LinePatternFormatter;
 use ExpressLogger\Logger;
-use ExpressLogger\Writer\FileWriter;
 use PHPUnit\Framework\TestCase;
 
 class LoggerTest extends TestCase
 {
     /**
-     * @testdox Should create logger.
+     * @testdox Should set a field.
      * @test
      */
-    public function creation()
+    public function setField()
     {
-        $this->markTestSkipped('@to implement');
         $logger = new Logger();
-//        $logger->addWriter( new FileWriter(TEST_LOG_FILE, new LinePatternFormatter()));
-        $logger->addWriter( new FileWriter(TEST_LOG_FILE, new JsonFormatter(null, PHP_EOL)));
-        $logger->setIsTurbo(false);
-        $eta = -hrtime(true);
-        for ($i = 0; $i < 100000; $i++) {
-            $logger->info('Hello', ['exception' => 'The argument is evil']);
-//
-//        if($i === 9) {
-//            throw new Exception('private exception');
-//        }
-        }
-        $stop = $eta + hrtime(true);
-        //$handler->batch();
-        //$eta += hrtime(true);
-        print_r([$stop / 1e+6]); //nanoseconds to milliseconds
+        $logger->setField('client_ip', '127.0.0.1');
+        $this->assertContains('127.0.0.1', $logger->getFields());
+        $this->assertArrayHasKey('client_ip', $logger->getFields());
+    }
+    /**
+     * @testdox Should set fields.
+     * @test
+     */
+    public function setFields()
+    {
+        $logger = new Logger();
+        $logger->setFields([
+            'client_ip' => '127.0.0.1',
+            'host' => 'localhost'
+        ]);
+
+        $this->assertArrayHasKey('host', $logger->getFields());
+        $this->assertArrayHasKey('client_ip', $logger->getFields());
     }
 }

@@ -13,7 +13,7 @@ namespace ExpressLogger\Formatter;
 
 /**
  * Trait ToStringTrait
- * @package ExpressLogger\Formatters
+ * @package Logger\Formatters
  */
 trait ToStringTrait
 {
@@ -46,10 +46,8 @@ trait ToStringTrait
                 break;
             case 'resource':
                 return (string)$value;
-                break;
             case 'resource (closed)':
                 return ((string)$value) . ' (closed)';
-                break;
         }
         return json_encode($value, $this->jsonFlags);
     }

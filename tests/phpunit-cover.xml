@@ -1,24 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit
-  bootstrap="bootstrap.php"
-  colors="true"
-  convertErrorsToExceptions="false"
-  convertNoticesToExceptions="false"
-  convertWarningsToExceptions="false">
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" bootstrap="bootstrap.php" colors="true"
+         convertErrorsToExceptions="false" convertNoticesToExceptions="false" convertWarningsToExceptions="false"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd">
+  <coverage>
+    <include>
+      <directory suffix=".php">../src/ExpressLogger</directory>
+    </include>
+  </coverage>
   <testsuites>
-    <testsuite name="Logger Tests">
-      <directory suffix="Test.php">./src/</directory>
+    <testsuite name="ExpressLogger">
+      <directory suffix="Test.php">./ExpressLogger</directory>
     </testsuite>
   </testsuites>
-  <filter>
-    <whitelist>
-      <directory suffix=".php">../src/</directory>
-    </whitelist>
-  </filter>
-  <logging>
-    <log type="coverage-html"
-         target="../coverage/"
-         lowUpperBound="50"
-         highLowerBound="80"/>
-  </logging>
 </phpunit>
+

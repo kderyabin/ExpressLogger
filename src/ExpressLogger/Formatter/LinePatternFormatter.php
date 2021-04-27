@@ -16,7 +16,7 @@ use ExpressLogger\API\FormatterInterface;
 
 /**
  * Class LinePatternFormatter
- * @package ExpressLogger\Formatters
+ * @package Logger\Formatters
  */
 class LinePatternFormatter implements FormatterInterface
 {
@@ -42,16 +42,18 @@ class LinePatternFormatter implements FormatterInterface
             $this->setLogFormat($logFormat);
         }
         if ($delimiter) {
-            $this->setDelimiter(is_array($delimiter) ? $delimiter : [$delimiter, $delimiter]);
+            $this->setDelimiter(is_array($delimiter)
+                ? $delimiter
+                : [ $delimiter, $delimiter]);
         }
 
-        $this->compile();
+        $this->prepareTemplate();
     }
 
     /**
      * Parses log template and extracts keys.
      */
-    protected function compile(): void
+    protected function prepareTemplate(): void
     {
         $regex = "/{$this->delimiter[0]}[^{$this->delimiter[1]}]+{$this->delimiter[1]}/";
         $this->templateAside = preg_split($regex, $this->logFormat);

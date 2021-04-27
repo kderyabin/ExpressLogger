@@ -13,13 +13,13 @@ namespace ExpressLogger\API;
 
 /**
  * Interface WriterInterface
- * @package ExpressLogger\Writers
+ * @package Logger\Writers
  */
 interface WriterInterface
 {
     /**
      * Write a log message.
-     * @param array $data
+     * @param array $log
      * @return bool
      */
     public function write(array $log): bool;

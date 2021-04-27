@@ -16,7 +16,7 @@ use ExpressLogger\API\FormatterInterface;
 
 /**
  * Class KeyFormatter
- * @package ExpressLogger\Formatters
+ * @package Logger\Formatters
  */
 class KeyFormatter implements FormatterInterface
 {

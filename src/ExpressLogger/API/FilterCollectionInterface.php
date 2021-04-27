@@ -11,20 +11,18 @@ declare(strict_types=1);
 
 namespace ExpressLogger\API;
 
-use Traversable;
-
 /**
  * Interface FilterCollectionInterface
- * @package ExpressLogger\API
+ * @package Logger\API
  */
 interface FilterCollectionInterface
 {
     /**
      * Apply available filters to the data.
-     * @param array $data
-     * @return array
+     * @param array $data Log data to filter
+     * @return array|false FALSE if data does not pass a filter otherwise filtered data.
      */
-    public function applyFilters(array $data): array;
+    public function applyFilters(array $data);
 
     /**
      * Check if the object has filters.
@@ -34,7 +32,7 @@ interface FilterCollectionInterface
 
     /**
      * Add filter
-     * @param $filter
+     * @param callable $filter
      */
-    public function addFilter($filter): void;
+    public function addFilter(callable $filter): void;
 }

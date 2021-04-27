@@ -12,14 +12,15 @@ declare(strict_types=1);
 namespace ExpressLogger;
 
 use DateInterval;
-use DateTimeInterface;
+use DateTime;
+use Exception;
 use ExpressLogger\API\WriterInterface;
 use Psr\Log\AbstractLogger;
 use Psr\Log\LogLevel;
 
 /**
  * Class Logger
- * @package ExpressLogger
+ * @package Logger
  */
 class Logger extends AbstractLogger
 {
@@ -46,14 +47,14 @@ class Logger extends AbstractLogger
      */
     private $timer;
     private DateInterval $dateInterval;
-    private DateTimeInterface $dateTime;
+    private DateTime $dateTime;
 
     /**
      * Extra field to be injected into the log message.
      * @var array
      */
     protected array $fields = [
-        'requestId' => 0
+        'request_id' => ''
     ];
     /**
      * Flag for turbo mode.
@@ -68,24 +69,27 @@ class Logger extends AbstractLogger
 
     /**
      * Logger constructor.
-     * @throws \Exception
+     * @throws Exception
      */
     public function __construct()
     {
-        $this->dateTime = new \DateTime('now', new \DateTimeZone(date_default_timezone_get()));
+        $this->dateTime = new DateTime('now', new \DateTimeZone(date_default_timezone_get()));
         $this->timer = hrtime(true);
-        $this->dateInterval = new \DateInterval('PT0S');
-        $this->fields['requestId'] = uniqid();
+        $this->dateInterval = new DateInterval('PT0S');
+
         if ($this->isTurbo) {
             register_shutdown_function([$this, 'batch']);
         }
+        $this->setField('request_id', uniqid());
     }
 
+
     /**
-     * @return DateTimeInterface
+     * @return DateTime
      */
-    public function getDate(): \DateTimeInterface
+    public function getDate(): DateTime
     {
+        // convert nanoseconds to microseconds for setting in DateInterval
         $this->dateInterval->f = (hrtime(true) - $this->timer) / 1e+9;
         $this->dateTime->add($this->dateInterval);
         $this->timer = hrtime(true);
@@ -142,5 +146,31 @@ class Logger extends AbstractLogger
     public function addWriter(WriterInterface $writer)
     {
         $this->writers[] = $writer;
+    }
+
+
+    /**
+     * @param string $name
+     * @param mixed $value
+     */
+    public function setField(string $name, $value): void
+    {
+        $this->fields[$name] = $value;
+    }
+
+    /**
+     * @return array
+     */
+    public function getFields(): array
+    {
+        return $this->fields;
+    }
+
+    /**
+     * @param array $fields
+     */
+    public function setFields(array $fields): void
+    {
+        $this->fields = $fields;
     }
 }

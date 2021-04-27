@@ -13,7 +13,7 @@ use ExpressLogger\API\{FormatterInterface, WriterInterface};
 
 /**
  * Class StdoutWriter
- * @package ExpressLogger\Handlers
+ * @package ExpressLogger\Writer
  */
 class StdoutWriter extends FileWriter
 {

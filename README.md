@@ -40,6 +40,7 @@ Note the context data (`client_login` field) is simply merged into the default d
 }
 ```
 Here is a little bit more advanced setup for logging into a file. In this example we extend a default log data structure with fields that must be appended to every log. Those fields, if not overridden with context data, will have a default value.
+
 ```php
 <?php
 use ExpressLogger\Logger;

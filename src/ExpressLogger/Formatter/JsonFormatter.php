@@ -15,7 +15,7 @@ use ExpressLogger\API\FormatterInterface;
 
 /**
  * Class JsonFormatter
- * @package ExpressLogger\Formatters
+ * @package Logger\Formatters
  */
 class JsonFormatter implements FormatterInterface
 {
