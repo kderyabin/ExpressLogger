@@ -9,8 +9,14 @@
 
 namespace ExpressLogger\Filter;
 
+use ExpressLogger\API\FilterCollectionInterface;
 use ExpressLogger\API\FilterInterface;
 
+/**
+ * Trait FilterCollectionTrait implements FilterCollectionInterface.
+ * @see FilterCollectionInterface
+ * @package ExpressLogger\Filter
+ */
 trait FilterCollectionTrait
 {
     /**

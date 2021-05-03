@@ -13,10 +13,10 @@ namespace ExpressLogger;
 
 use DateInterval;
 use DateTime;
+use DateTimeZone;
 use Exception;
 use ExpressLogger\API\WriterInterface;
 use Psr\Log\AbstractLogger;
-use Psr\Log\LogLevel;
 
 /**
  * Class Logger
@@ -24,19 +24,6 @@ use Psr\Log\LogLevel;
  */
 class Logger extends AbstractLogger
 {
-    /**
-     * @var array|int[]
-     */
-    public static array $levelCode = [
-        LogLevel::EMERGENCY => 70,
-        LogLevel::ALERT => 60,
-        LogLevel::CRITICAL => 50,
-        LogLevel::ERROR => 40,
-        LogLevel::WARNING => 30,
-        LogLevel::NOTICE => 20,
-        LogLevel::INFO => 10,
-        LogLevel::DEBUG => 0,
-    ];
     /**
      * @var WriterInterface[]
      */
@@ -73,7 +60,7 @@ class Logger extends AbstractLogger
      */
     public function __construct()
     {
-        $this->dateTime = new DateTime('now', new \DateTimeZone(date_default_timezone_get()));
+        $this->dateTime = new DateTime('now', new DateTimeZone(date_default_timezone_get()));
         $this->timer = hrtime(true);
         $this->dateInterval = new DateInterval('PT0S');
 
@@ -115,12 +102,7 @@ class Logger extends AbstractLogger
      */
     public function log($level, $message, array $context = array())
     {
-        $data = [
-                'datetime' => $this->getDate(),
-                'message' => $message,
-                'level' => $level,
-                'level_code' => static::$levelCode[$level],
-            ] + array_merge($this->fields, $context);
+        $data = [ 'datetime' => $this->getDate(), 'message' => $message, 'level' => $level, ] + array_merge($this->fields, $context);
 
         if ($this->isTurbo) {
             $this->queue[] = $data;

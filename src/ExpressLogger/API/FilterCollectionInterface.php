@@ -25,14 +25,14 @@ interface FilterCollectionInterface
     public function applyFilters(array $data);
 
     /**
-     * Check if the object has filters.
+     * Check if the current object has filters.
      * @return bool
      */
     public function hasFilters(): bool;
 
     /**
-     * Add filter
-     * @param callable $filter
+     * Add filter to the filter collection.
+     * @param FilterInterface|callable $filter
      */
-    public function addFilter(callable $filter): void;
+    public function addFilter($filter): void;
 }

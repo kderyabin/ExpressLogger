@@ -11,8 +11,8 @@ declare(strict_types=1);
 
 namespace ExpressLogger\Writer;
 
-use ExpressLogger\Filter\FilterCollectionTrait;
 use ExpressLogger\API\{FilterCollectionInterface, FormatterInterface, WriterInterface};
+use ExpressLogger\Filter\FilterCollectionTrait;
 use ExpressLogger\Formatter\JsonFormatter;
 
 /**
@@ -25,7 +25,6 @@ use ExpressLogger\Formatter\JsonFormatter;
  */
 class ErrorLogWriter implements WriterInterface, FilterCollectionInterface
 {
-    use LogLevelTrait;
     use FilterCollectionTrait;
 
     /**
@@ -50,9 +49,6 @@ class ErrorLogWriter implements WriterInterface, FilterCollectionInterface
             return false;
         }
 
-        if (!$this->canLog($log['level_code'] ?? $this->codeLevelMin)) {
-            return false;
-        }
         return error_log($this->formatter->format($log));
     }
 
@@ -64,9 +60,6 @@ class ErrorLogWriter implements WriterInterface, FilterCollectionInterface
         foreach ($logs as $log) {
             $log = $this->applyFilters($log);
             if (false === $log) {
-                continue;
-            }
-            if (!$this->canLog($log['level_code'] ?? $this->codeLevelMin)) {
                 continue;
             }
             error_log($this->formatter->format($log));

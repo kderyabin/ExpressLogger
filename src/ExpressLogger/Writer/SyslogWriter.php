@@ -11,8 +11,8 @@ declare(strict_types=1);
 
 namespace ExpressLogger\Writer;
 
-use ExpressLogger\Filter\FilterCollectionTrait;
 use ExpressLogger\API\{FormatterInterface, WriterInterface};
+use ExpressLogger\Filter\FilterCollectionTrait;
 use Psr\Log\LogLevel;
 
 /**
@@ -21,7 +21,6 @@ use Psr\Log\LogLevel;
  */
 class SyslogWriter implements WriterInterface
 {
-    use LogLevelTrait;
     use FilterCollectionTrait;
 
     /**
@@ -134,9 +133,7 @@ class SyslogWriter implements WriterInterface
         if (false === $log) {
             return false;
         }
-        if (!$this->canLog($log['level_code'] ?? $this->codeLevelMin)) {
-            return false;
-        }
+
         return syslog($this->getSystemLevel($log['level']), $this->formatter->format($log));
     }
 
@@ -152,9 +149,7 @@ class SyslogWriter implements WriterInterface
             if (false === $log) {
                 continue;
             }
-            if (!$this->canLog($log['level_code'] ?? $this->codeLevelMin)) {
-                continue;
-            }
+
             syslog($this->getSystemLevel($log['level']), $this->formatter->format($log));
             $count++;
         }

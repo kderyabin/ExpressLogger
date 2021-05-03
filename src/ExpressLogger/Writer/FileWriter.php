@@ -9,13 +9,12 @@
 
 namespace ExpressLogger\Writer;
 
-use ExpressLogger\Filter\FilterCollectionTrait;
 use ExpressLogger\API\{FilterCollectionInterface, FormatterInterface, WriterInterface};
+use ExpressLogger\Filter\FilterCollectionTrait;
 use ExpressLogger\Formatter\JsonFormatter;
 
 class FileWriter implements WriterInterface, FilterCollectionInterface
 {
-    use LogLevelTrait;
     use FilterCollectionTrait;
 
     /**
@@ -69,15 +68,8 @@ class FileWriter implements WriterInterface, FilterCollectionInterface
         }
 
         $log = $this->applyFilters($log);
-        if (false === $log) {
-            return false;
-        }
 
-        if (!$this->canLog($log['level_code'] ?? $this->codeLevelMin)) {
-            return false;
-        }
-
-        return @fwrite($this->resource, $this->formatter->format($log)) !== false;
+        return $log && (@fwrite($this->resource, $this->formatter->format($log)) !== false);
     }
 
     /**
@@ -101,9 +93,6 @@ class FileWriter implements WriterInterface, FilterCollectionInterface
                 continue;
             }
 
-            if (!$this->canLog($data['level_code'] ?? $this->codeLevelMin)) {
-                continue;
-            }
             $msg .= $this->formatter->format($this->applyFilters($data));
             ++$count;
         }

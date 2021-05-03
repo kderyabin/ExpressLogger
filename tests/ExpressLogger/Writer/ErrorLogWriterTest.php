@@ -58,7 +58,7 @@ class ErrorLogWriterTest extends TestCase
     /**
      * @test
      */
-    public function Process()
+    public function process()
     {
         $writer = new ErrorLogWriter();
         $log = ['message' => 'Lorem ipsum dolor sit amet.'];

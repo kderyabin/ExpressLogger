@@ -14,7 +14,7 @@ namespace ExpressLogger\Filter;
 use ExpressLogger\API\FilterInterface;
 
 /**
- * Class CallbackFilter
+ * Class CallbackFilter allows to use a callable as a filter.
  * @package ExpressLogger\Filter
  */
 class CallbackFilter implements FilterInterface

@@ -17,8 +17,9 @@ function ab()
 // 1040
 function expressLogger()
 {
-    $formatter = new LinePatternFormatter(null,'%datetime% %level%[%level_code%]: %message% %exception%'. "\n");
+    $formatter = new LinePatternFormatter(null,'%datetime% %level%: %message% %exception%'. "\n");
     $writer = new FileWriter(TEST_LOG_FILE, $formatter);
+    //$writer->addFilter(new \ExpressLogger\Filter\LogLevelFilter(\Psr\Log\LogLevel::INFO, \Psr\Log\LogLevel::CRITICAL));
     $logger = new Logger();
     $logger->setIsTurbo(false);
     $logger->addWriter($writer);
