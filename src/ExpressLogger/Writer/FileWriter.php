@@ -68,8 +68,11 @@ class FileWriter implements WriterInterface, FilterCollectionInterface
         }
 
         $log = $this->applyFilters($log);
+        if(!$log) {
+            return false;
+        }
 
-        return $log && (@fwrite($this->resource, $this->formatter->format($log)) !== false);
+        return @fwrite($this->resource, $this->formatter->format($log)) !== false;
     }
 
     /**
@@ -93,7 +96,7 @@ class FileWriter implements WriterInterface, FilterCollectionInterface
                 continue;
             }
 
-            $msg .= $this->formatter->format($this->applyFilters($data));
+            $msg .= $this->formatter->format($log);
             ++$count;
         }
         @fwrite($this->resource, $msg);

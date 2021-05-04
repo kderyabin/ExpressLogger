@@ -35,7 +35,7 @@ trait FilterCollectionTrait
         }
         foreach ($this->filters as $filter) {
             $data = $filter->filter($data);
-            if ($data === false) {
+            if (!$data) {
                 return false;
             }
         }
