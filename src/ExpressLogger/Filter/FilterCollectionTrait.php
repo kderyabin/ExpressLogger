@@ -9,8 +9,14 @@
 
 namespace ExpressLogger\Filter;
 
+use ExpressLogger\API\FilterCollectionInterface;
 use ExpressLogger\API\FilterInterface;
 
+/**
+ * Trait FilterCollectionTrait implements FilterCollectionInterface.
+ * @see FilterCollectionInterface
+ * @package ExpressLogger\Filter
+ */
 trait FilterCollectionTrait
 {
     /**
@@ -29,7 +35,7 @@ trait FilterCollectionTrait
         }
         foreach ($this->filters as $filter) {
             $data = $filter->filter($data);
-            if ($data === false) {
+            if (!$data) {
                 return false;
             }
         }

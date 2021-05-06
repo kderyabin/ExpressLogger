@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Copyright (c) 2018 Konstantin Deryabin
+ * Copyright (c) 2021 Konstantin Deryabin
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,10 +13,10 @@ namespace ExpressLogger;
 
 use DateInterval;
 use DateTime;
+use DateTimeZone;
 use Exception;
 use ExpressLogger\API\WriterInterface;
 use Psr\Log\AbstractLogger;
-use Psr\Log\LogLevel;
 
 /**
  * Class Logger
@@ -24,19 +24,6 @@ use Psr\Log\LogLevel;
  */
 class Logger extends AbstractLogger
 {
-    /**
-     * @var array|int[]
-     */
-    public static array $levelCode = [
-        LogLevel::EMERGENCY => 70,
-        LogLevel::ALERT => 60,
-        LogLevel::CRITICAL => 50,
-        LogLevel::ERROR => 40,
-        LogLevel::WARNING => 30,
-        LogLevel::NOTICE => 20,
-        LogLevel::INFO => 10,
-        LogLevel::DEBUG => 0,
-    ];
     /**
      * @var WriterInterface[]
      */
@@ -50,7 +37,7 @@ class Logger extends AbstractLogger
     private DateTime $dateTime;
 
     /**
-     * Extra field to be injected into the log message.
+     * Extra fields with constant values to be injected into the log message.
      * @var array
      */
     protected array $fields = [
@@ -68,12 +55,13 @@ class Logger extends AbstractLogger
     protected array $queue = [];
 
     /**
-     * Logger constructor.
+     * @param WriterInterface|WriterInterface[] $writers One or an array of writers.
+     * @param array $fields Additional log fields with constant values. See Logger::setFields() if you wish to reset default fields.
      * @throws Exception
      */
-    public function __construct()
+    public function __construct( $writers = [], array $fields = [] )
     {
-        $this->dateTime = new DateTime('now', new \DateTimeZone(date_default_timezone_get()));
+        $this->dateTime = new DateTime('now', new DateTimeZone(date_default_timezone_get()));
         $this->timer = hrtime(true);
         $this->dateInterval = new DateInterval('PT0S');
 
@@ -81,6 +69,20 @@ class Logger extends AbstractLogger
             register_shutdown_function([$this, 'batch']);
         }
         $this->setField('request_id', uniqid());
+        if($writers) {
+            if(!is_array($writers)) {
+                $this->addWriter($writers);
+            } else {
+                foreach ($writers as $writer) {
+                    $this->addWriter($writer);
+                }
+            }
+        }
+        if($fields) {
+            foreach ($fields as $field => $value) {
+                $this->setField($field, $value);
+            }
+        }
     }
 
 
@@ -115,12 +117,7 @@ class Logger extends AbstractLogger
      */
     public function log($level, $message, array $context = array())
     {
-        $data = [
-                'datetime' => $this->getDate(),
-                'message' => $message,
-                'level' => $level,
-                'level_code' => static::$levelCode[$level],
-            ] + array_merge($this->fields, $context);
+        $data = [ 'datetime' => $this->getDate(), 'message' => $message, 'level' => $level, ] + array_merge($this->fields, $context);
 
         if ($this->isTurbo) {
             $this->queue[] = $data;
@@ -137,6 +134,22 @@ class Logger extends AbstractLogger
         foreach ($this->writers as $handler) {
             $handler->process($this->queue);
         }
+    }
+
+    /**
+     * @return WriterInterface[]
+     */
+    public function getWriters(): array
+    {
+        return $this->writers;
+    }
+
+    /**
+     * @param WriterInterface[] $writers
+     */
+    public function setWriters(array $writers): void
+    {
+        $this->writers = $writers;
     }
 
     /**

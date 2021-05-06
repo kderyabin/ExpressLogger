@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Copyright (c) 2018 Konstantin Deryabin
+ * Copyright (c) 2021 Konstantin Deryabin
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -11,21 +11,19 @@ declare(strict_types=1);
 
 namespace ExpressLogger\Writer;
 
-use ExpressLogger\Filter\FilterCollectionTrait;
 use ExpressLogger\API\{FilterCollectionInterface, FormatterInterface, WriterInterface};
+use ExpressLogger\Filter\FilterCollectionTrait;
 use ExpressLogger\Formatter\JsonFormatter;
 
 /**
  * Class ErrorLogWriter is a wrapper for error_log() function.
  * Sends a message to the web server's error log or to a file according to php settings.
  *
- * @package Logger\Handlers
  * @see http://php.net/manual/function.error-log.php
  * @see http://php.net/manual/errorfunc.configuration.php#ini.error-log
  */
 class ErrorLogWriter implements WriterInterface, FilterCollectionInterface
 {
-    use LogLevelTrait;
     use FilterCollectionTrait;
 
     /**
@@ -46,14 +44,8 @@ class ErrorLogWriter implements WriterInterface, FilterCollectionInterface
     public function write(array $log): bool
     {
         $log = $this->applyFilters($log);
-        if (false === $log) {
-            return false;
-        }
 
-        if (!$this->canLog($log['level_code'] ?? $this->codeLevelMin)) {
-            return false;
-        }
-        return error_log($this->formatter->format($log));
+        return $log && error_log($this->formatter->format($log));
     }
 
     public function process(array $logs): int
@@ -63,14 +55,7 @@ class ErrorLogWriter implements WriterInterface, FilterCollectionInterface
         ini_set('log_errors_max_len', '0');
         foreach ($logs as $log) {
             $log = $this->applyFilters($log);
-            if (false === $log) {
-                continue;
-            }
-            if (!$this->canLog($log['level_code'] ?? $this->codeLevelMin)) {
-                continue;
-            }
-            error_log($this->formatter->format($log));
-            $count++;
+            $log && error_log($this->formatter->format($log)) && ++$count;
         }
         ini_set('log_errors_max_len', $sizeLimit);
         return $count;

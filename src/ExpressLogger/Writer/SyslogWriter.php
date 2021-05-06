@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Copyright (c) 2018 Konstantin Deryabin
+ * Copyright (c) 2021 Konstantin Deryabin
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -11,8 +11,8 @@ declare(strict_types=1);
 
 namespace ExpressLogger\Writer;
 
-use ExpressLogger\Filter\FilterCollectionTrait;
 use ExpressLogger\API\{FormatterInterface, WriterInterface};
+use ExpressLogger\Filter\FilterCollectionTrait;
 use Psr\Log\LogLevel;
 
 /**
@@ -21,7 +21,6 @@ use Psr\Log\LogLevel;
  */
 class SyslogWriter implements WriterInterface
 {
-    use LogLevelTrait;
     use FilterCollectionTrait;
 
     /**
@@ -131,13 +130,8 @@ class SyslogWriter implements WriterInterface
             return false;
         }
         $log = $this->applyFilters($log);
-        if (false === $log) {
-            return false;
-        }
-        if (!$this->canLog($log['level_code'] ?? $this->codeLevelMin)) {
-            return false;
-        }
-        return syslog($this->getSystemLevel($log['level']), $this->formatter->format($log));
+
+        return $log && syslog($this->getSystemLevel($log['level']), $this->formatter->format($log));
     }
 
 
@@ -149,14 +143,7 @@ class SyslogWriter implements WriterInterface
         }
         foreach ($logs as $log) {
             $log = $this->applyFilters($log);
-            if (false === $log) {
-                continue;
-            }
-            if (!$this->canLog($log['level_code'] ?? $this->codeLevelMin)) {
-                continue;
-            }
-            syslog($this->getSystemLevel($log['level']), $this->formatter->format($log));
-            $count++;
+            $log && syslog($this->getSystemLevel($log['level']), $this->formatter->format($log)) &&  ++$count;
         }
         return $count;
     }
