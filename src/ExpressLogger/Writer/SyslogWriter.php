@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Copyright (c) 2018 Konstantin Deryabin
+ * Copyright (c) 2021 Konstantin Deryabin
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -130,11 +130,8 @@ class SyslogWriter implements WriterInterface
             return false;
         }
         $log = $this->applyFilters($log);
-        if (false === $log) {
-            return false;
-        }
 
-        return syslog($this->getSystemLevel($log['level']), $this->formatter->format($log));
+        return $log && syslog($this->getSystemLevel($log['level']), $this->formatter->format($log));
     }
 
 
@@ -146,12 +143,7 @@ class SyslogWriter implements WriterInterface
         }
         foreach ($logs as $log) {
             $log = $this->applyFilters($log);
-            if (false === $log) {
-                continue;
-            }
-
-            syslog($this->getSystemLevel($log['level']), $this->formatter->format($log));
-            $count++;
+            $log && syslog($this->getSystemLevel($log['level']), $this->formatter->format($log)) &&  ++$count;
         }
         return $count;
     }

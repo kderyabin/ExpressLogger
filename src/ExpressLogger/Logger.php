@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Copyright (c) 2018 Konstantin Deryabin
+ * Copyright (c) 2021 Konstantin Deryabin
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -37,7 +37,7 @@ class Logger extends AbstractLogger
     private DateTime $dateTime;
 
     /**
-     * Extra field to be injected into the log message.
+     * Extra fields with constant values to be injected into the log message.
      * @var array
      */
     protected array $fields = [
@@ -55,10 +55,11 @@ class Logger extends AbstractLogger
     protected array $queue = [];
 
     /**
-     * Logger constructor.
+     * @param WriterInterface|WriterInterface[] $writers One or an array of writers.
+     * @param array $fields Additional log fields with constant values. See Logger::setFields() if you wish to reset default fields.
      * @throws Exception
      */
-    public function __construct()
+    public function __construct( $writers = [], array $fields = [] )
     {
         $this->dateTime = new DateTime('now', new DateTimeZone(date_default_timezone_get()));
         $this->timer = hrtime(true);
@@ -68,6 +69,20 @@ class Logger extends AbstractLogger
             register_shutdown_function([$this, 'batch']);
         }
         $this->setField('request_id', uniqid());
+        if($writers) {
+            if(!is_array($writers)) {
+                $this->addWriter($writers);
+            } else {
+                foreach ($writers as $writer) {
+                    $this->addWriter($writer);
+                }
+            }
+        }
+        if($fields) {
+            foreach ($fields as $field => $value) {
+                $this->setField($field, $value);
+            }
+        }
     }
 
 
@@ -119,6 +134,22 @@ class Logger extends AbstractLogger
         foreach ($this->writers as $handler) {
             $handler->process($this->queue);
         }
+    }
+
+    /**
+     * @return WriterInterface[]
+     */
+    public function getWriters(): array
+    {
+        return $this->writers;
+    }
+
+    /**
+     * @param WriterInterface[] $writers
+     */
+    public function setWriters(array $writers): void
+    {
+        $this->writers = $writers;
     }
 
     /**

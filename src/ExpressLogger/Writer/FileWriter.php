@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Copyright (c) 2018 Konstantin Deryabin
+ * Copyright (c) 2021 Konstantin Deryabin
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -66,13 +66,9 @@ class FileWriter implements WriterInterface, FilterCollectionInterface
         if ($this->isDisabled) {
             return false;
         }
-
         $log = $this->applyFilters($log);
-        if(!$log) {
-            return false;
-        }
 
-        return @fwrite($this->resource, $this->formatter->format($log)) !== false;
+        return $log && (@fwrite($this->resource, $this->formatter->format($log)) !== false);
     }
 
     /**
@@ -81,9 +77,6 @@ class FileWriter implements WriterInterface, FilterCollectionInterface
      */
     public function process(array $logs): int
     {
-        if (empty($logs)) {
-            return 0;
-        }
         if ($this->isDisabled) {
             return 0;
         }
