@@ -36,10 +36,16 @@ class Logger extends AbstractLogger
         'request_id' => ''
     ];
     /**
-     * Flag for turbo mode.
+     * Application logs must be processed after application is run.
      * @var bool
      */
-    protected bool $isTurbo = true;
+    protected bool $isExpressMode = true;
+    /**
+     * Flashes the content before logs are processed.
+     * Can be activated only ifs Logger::isExpressMode is enabled.
+     * @var bool
+     */
+    protected bool $useFlush = false;
     /**
      * Logs used in turbo mode.
      * @var array
@@ -54,7 +60,7 @@ class Logger extends AbstractLogger
     public function __construct($writers = [], array $fields = [])
     {
         $this->datetimeTracker = new DateTimeTracker();
-        if ($this->isTurbo) {
+        if ($this->isExpressMode) {
             register_shutdown_function([$this, 'batch']);
         }
         $this->setField('request_id', uniqid());
@@ -75,11 +81,18 @@ class Logger extends AbstractLogger
     }
 
     /**
-     * @param bool $isTurbo
+     * @param bool $isExpressMode
+     * @param bool $useFlush
      */
-    public function setIsTurbo(bool $isTurbo): void
+    public function setExpressMode(bool $isExpressMode, bool $useFlush = false): void
     {
-        $this->isTurbo = $isTurbo;
+        $this->isExpressMode = $isExpressMode;
+        $this->useFlush = $useFlush;
+    }
+
+    public function flushContent()
+    {
+        // @todo
     }
 
     /**
@@ -98,7 +111,7 @@ class Logger extends AbstractLogger
                 'level' => $level,
             ] + array_merge($this->fields, $context);
 
-        if ($this->isTurbo) {
+        if ($this->isExpressMode) {
             $this->queue[] = $data;
             return;
         }
@@ -108,7 +121,10 @@ class Logger extends AbstractLogger
         }
     }
 
-    public function batch()
+    /**
+     * Process logs queue in express mode.
+     */
+    public function batch(): void
     {
         foreach ($this->writers as $handler) {
             $handler->process($this->queue);

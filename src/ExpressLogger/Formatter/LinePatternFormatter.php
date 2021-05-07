@@ -22,7 +22,7 @@ class LinePatternFormatter implements FormatterInterface
 {
     use ToStringTrait;
 
-    protected string $logFormat = "%datetime% %level%[%level_code%] %requestId%: %message%\n" ;
+    protected string $logFormat = "%datetime% %level%[%level_code%] %request_id%: %message%\n" ;
     protected array $delimiter = ['%','%'];
     protected array $templateAside = [];
     protected array $templateKeys = [];

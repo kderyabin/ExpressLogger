@@ -22,7 +22,7 @@ function expressLogger()
     $writer = new FileWriter(TEST_LOG_FILE, $formatter);
     //$writer->addFilter(new \ExpressLogger\Filter\LogLevelFilter(\Psr\Log\LogLevel::INFO, \Psr\Log\LogLevel::CRITICAL));
     $logger = new Logger();
-    $logger->setIsTurbo(false);
+    $logger->setIsExpressMode(false);
     $logger->addWriter($writer);
 
     $eta = -hrtime(true);
