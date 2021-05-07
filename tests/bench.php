@@ -15,6 +15,7 @@ function ab()
     expressLogger();
 }
 // 1040
+// 1100
 function expressLogger()
 {
     $formatter = new LinePatternFormatter(null,'%datetime% %level%: %message% %exception%'. "\n");

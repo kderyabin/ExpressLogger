@@ -11,9 +11,6 @@ declare(strict_types=1);
 
 namespace ExpressLogger;
 
-use DateInterval;
-use DateTime;
-use DateTimeZone;
 use Exception;
 use ExpressLogger\API\WriterInterface;
 use Psr\Log\AbstractLogger;
@@ -27,14 +24,9 @@ class Logger extends AbstractLogger
     /**
      * @var WriterInterface[]
      */
-    private array $writers = [];
+    protected array $writers = [];
 
-    /**
-     * @var int|float
-     */
-    private $timer;
-    private DateInterval $dateInterval;
-    private DateTime $dateTime;
+    protected DateTimeTracker $datetimeTracker;
 
     /**
      * Extra fields with constant values to be injected into the log message.
@@ -56,21 +48,18 @@ class Logger extends AbstractLogger
 
     /**
      * @param WriterInterface|WriterInterface[] $writers One or an array of writers.
-     * @param array $fields Additional log fields with constant values. See Logger::setFields() if you wish to reset default fields.
+     * @param array $fields Additional log fields with constant values. See Logger::setFields() ro reset default fields.
      * @throws Exception
      */
-    public function __construct( $writers = [], array $fields = [] )
+    public function __construct($writers = [], array $fields = [])
     {
-        $this->dateTime = new DateTime('now', new DateTimeZone(date_default_timezone_get()));
-        $this->timer = hrtime(true);
-        $this->dateInterval = new DateInterval('PT0S');
-
+        $this->datetimeTracker = new DateTimeTracker();
         if ($this->isTurbo) {
             register_shutdown_function([$this, 'batch']);
         }
         $this->setField('request_id', uniqid());
-        if($writers) {
-            if(!is_array($writers)) {
+        if ($writers) {
+            if (!is_array($writers)) {
                 $this->addWriter($writers);
             } else {
                 foreach ($writers as $writer) {
@@ -78,25 +67,11 @@ class Logger extends AbstractLogger
                 }
             }
         }
-        if($fields) {
+        if ($fields) {
             foreach ($fields as $field => $value) {
                 $this->setField($field, $value);
             }
         }
-    }
-
-
-    /**
-     * @return DateTime
-     */
-    public function getDate(): DateTime
-    {
-        // convert nanoseconds to microseconds for setting in DateInterval
-        $this->dateInterval->f = (hrtime(true) - $this->timer) / 1e+9;
-        $this->dateTime->add($this->dateInterval);
-        $this->timer = hrtime(true);
-
-        return (clone $this->dateTime);
     }
 
     /**
@@ -117,7 +92,11 @@ class Logger extends AbstractLogger
      */
     public function log($level, $message, array $context = array())
     {
-        $data = [ 'datetime' => $this->getDate(), 'message' => $message, 'level' => $level, ] + array_merge($this->fields, $context);
+        $data = [
+                'datetime' => $this->datetimeTracker->getNow(),
+                'message' => $message,
+                'level' => $level,
+            ] + array_merge($this->fields, $context);
 
         if ($this->isTurbo) {
             $this->queue[] = $data;
@@ -160,7 +139,6 @@ class Logger extends AbstractLogger
     {
         $this->writers[] = $writer;
     }
-
 
     /**
      * @param string $name

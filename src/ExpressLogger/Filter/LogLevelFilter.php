@@ -35,12 +35,12 @@ class LogLevelFilter implements FilterInterface
      * @param string|null $levelMin
      * @param string|null $levelMax
      */
-    public function __construct( ?string $levelMin = null , ?string $levelMax = null )
+    public function __construct(?string $levelMin = null, ?string $levelMax = null)
     {
-        if(null !== $levelMin) {
+        if (null !== $levelMin) {
             $this->levelMin = static::$levelCode[$levelMin] ??  PHP_INT_MIN;
         }
-        if( null !== $levelMax) {
+        if (null !== $levelMax) {
             $this->levelMax = static::$levelCode[$levelMax] ??  PHP_INT_MAX;
         }
     }
