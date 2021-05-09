@@ -1,6 +1,6 @@
 {
   "name": "expresslogger/expresslogger",
-  "description": "Psr 3 logger implementation",
+  "description": "ExpressLogger is one of the fastest Psr 3 logger implementations",
   "type": "library",
   "license": "MIT",
   "version": "1.0.0",
@@ -11,18 +11,12 @@
       "role": "Developer"
     }
   ],
-  "keywords": ["logger", "log", "logging", "psr-3"],
-  "repositories": [
-    {
-      "type": "vcs",
-      "url": "https://github.com/kderyabin/ExpressLoggerAPI"
-    }
-  ],
+  "keywords": ["fast logger", "logger", "log", "logging", "psr-3"],
   "require": {
     "php": ">=7.4",
     "psr/log": ">=1.1.3",
     "ext-json": "*",
-    "expresslogger/api": "1.*"
+    "expresslogger/api": "^1.0"
   },
   "require-dev": {
     "squizlabs/php_codesniffer": "~3.5.8",

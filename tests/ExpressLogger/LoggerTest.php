@@ -33,6 +33,8 @@ class LoggerTest extends TestCase
         $logger = new Logger($writer, ['client_ip' => '127.0.0.1']);
         $this->assertNotEmpty($logger->getWriters());
         $this->assertArrayHasKey('client_ip', $logger->getFields());
+        $this->assertTrue($logger->isExpressMode());
+        $this->assertTrue($logger->isUseFlush());
     }
 
     /**
@@ -61,5 +63,46 @@ class LoggerTest extends TestCase
 
         $this->assertArrayHasKey('host', $logger->getFields());
         $this->assertArrayHasKey('client_ip', $logger->getFields());
+    }
+    /**
+     * @testdox Must convert memory_limit set in megabytes to bytes & apply a ratio
+     */
+    public function testMemLimitM()
+    {
+        ini_set('memory_limit', '10M');
+        $logger = new Logger();
+
+        $this->assertEquals( intval(10 * 0.6 * (1024**2)), $logger->getMemoryLimit());
+    }
+
+    /**
+     * @testdox Must convert memory_limit set in gigabytes to bytes & apply a ratio
+     */
+    public function testMemLimitG()
+    {
+        ini_set('memory_limit', '1G');
+        $logger = new Logger();
+
+        $this->assertEquals( intval(1 * 0.6 * (1024**3)), $logger->getMemoryLimit());
+    }
+    /**
+     * @testdox Must convert memory_limit set in kilobytes to bytes & apply a ratio
+     */
+    public function testMemLimitK()
+    {
+        ini_set('memory_limit', '1K');
+        $logger = new Logger();
+
+        $this->assertEquals( intval(1 * 0.6 * (1024)), $logger->getMemoryLimit());
+    }
+    /**
+     * @testdox Must set -1 if no memory limit is set
+     */
+    public function testMemLimit()
+    {
+        ini_set('memory_limit', '-1');
+        $logger = new Logger();
+
+        $this->assertEquals(-1, $logger->getMemoryLimit());
     }
 }

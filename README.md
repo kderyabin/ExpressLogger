@@ -3,7 +3,7 @@
 
 ExpressLogger is a PSR3 implementation with a minimum impact on your application execution time. 
 
-Implemented solution is simple but powerful and makes the ExpressLogger the fastest logger solution. 
+Implemented solution is simple but powerful and makes the ExpressLogger one of the fastest loggers. 
 
 ## Installation
 
@@ -29,7 +29,7 @@ $logger->debug('Debug message', [
 ]);
 ```
 This will produce the following result. Note that context data (`client_login` field) is simply merged into the default 
-log data which is datetime, message, level and request_id.
+log data which is: `datetime`, `message` and `level`.
 
 ```json
 {
@@ -40,7 +40,6 @@ log data which is datetime, message, level and request_id.
   },
   "message": "Debug message",
   "level": "debug",
-  "request_id": "6092dc409804e",
   "client_login": "login@domain.com"
 }
 ```
