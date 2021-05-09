@@ -60,6 +60,11 @@ class Logger extends AbstractLogger
      * @var int
      */
     protected int $bufferSize = 200;
+    /**
+     * In express mode this is a maximum number of logs after which the memory usage tracking is started.
+     * @var int
+     */
+    protected int $expressMaxLogsCount = 1000;
 
     /**
      * @param WriterInterface|WriterInterface[] $writers One or an array of writers.
@@ -105,7 +110,7 @@ class Logger extends AbstractLogger
 
         if ($this->isExpressMode) {
             $this->queue[] = $data;
-            if ($this->memoryLimit !== -1 && memory_get_usage(true) > $this->memoryLimit) {
+            if (count($this->queue) > $this->expressMaxLogsCount && $this->memoryLimit !== -1 && memory_get_usage(true) > $this->memoryLimit) {
                 $this->batchBuffer();
             }
             return;
