@@ -118,7 +118,6 @@ class LoggerTest extends TestCase
 
         $this->assertEmpty($writer->log);
         $logger->batch();
-        print_r($writer->log);
         $this->assertEquals(2, count($writer->log));
     }
 

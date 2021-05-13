@@ -329,4 +329,13 @@ class Logger extends AbstractLogger
     {
         return $this->bufferSize;
     }
+
+
+    /**
+     * @return int
+     */
+    public function getMemWatchThreshold(): int
+    {
+        return $this->memWatchThreshold;
+    }
 }
