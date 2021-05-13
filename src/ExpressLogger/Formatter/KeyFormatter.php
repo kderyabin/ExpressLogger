@@ -16,24 +16,28 @@ use ExpressLogger\API\FormatterInterface;
 
 /**
  * Class KeyFormatter
- * @package Logger\Formatters
+ * @package ExpressLogger\Formatter
  */
 class KeyFormatter implements FormatterInterface
 {
     use ToStringTrait;
 
-    protected string $endLine;
+    /**
+     * End line to append to generated json.
+     * @var string
+     */
+    protected string $eol = '';
     /**
      * KeyFormatter constructor.
      * @param string|null $dateFormat
-     * @param string $endLine Log message end line.
+     * @param string $eol Log message end line.
      */
-    public function __construct(?string $dateFormat = null, string $endLine = "\n")
+    public function __construct(?string $dateFormat = null, string $eol = "\n")
     {
         if ($dateFormat) {
-            $this->dateFormat = $dateFormat;
+            $this->setDateFormat($dateFormat);
         }
-        $this->endLine = $endLine;
+        $this->eol = $eol;
     }
 
     /**
@@ -46,7 +50,7 @@ class KeyFormatter implements FormatterInterface
         foreach ($data as $key => $value) {
             $result .= $key . ': ' . $this->toString($value) . ' ';
         }
-        $result .= $this->endLine;
+        $result .= $this->eol;
         return $result;
     }
 }

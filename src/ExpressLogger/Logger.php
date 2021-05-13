@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace ExpressLogger;
 
+use Exception;
 use ExpressLogger\API\WriterInterface;
 use Psr\Log\AbstractLogger;
 
@@ -42,13 +43,18 @@ class Logger extends AbstractLogger
      * Can be activated only ifs Logger::isExpressMode is enabled.
      * @var bool
      */
-    protected bool $useFlush = false;
+    protected bool $useFlush = true;
     /**
      * Collection of logs.
      * Used in express mode.
      * @var array
      */
     protected array $queue = [];
+    /**
+     * Number of logs in the queue.
+     * @var int
+     */
+    protected int $queueSize = 0;
     /**
      * The memory threshold in bytes after which the logger starts to write logs by batch of $bufferSize.
      * -1: memory limitation is disabled.
@@ -61,15 +67,17 @@ class Logger extends AbstractLogger
      */
     protected int $bufferSize = 200;
     /**
-     * In express mode this is a maximum number of logs after which the memory usage tracking is started.
+     * In express mode this is a maximum number of logs in a queue after which the memory usage tracking is started.
      * @var int
      */
-    protected int $expressMaxLogsCount = 1000;
+    protected int $memWatchThreshold = 1000;
 
     /**
      * @param WriterInterface|WriterInterface[] $writers One or an array of writers.
-     * @param array $extraFields Additional log fields with constant values. See Logger::setFields() ro reset default fields.
+     * @param array $extraFields Additional log fields with constant values.
+     *                              See Logger::setFields() ro reset default fields.
      * @param bool $isExpressMode Enable express mode.
+     * @throws Exception Emits Exception in case of an error.
      */
     public function __construct($writers = [], array $extraFields = [], bool $isExpressMode = true)
     {
@@ -93,34 +101,51 @@ class Logger extends AbstractLogger
     }
 
     /**
-     * Logs with an arbitrary level.
-     *
-     * @param mixed $level
-     * @param string $message
-     * @param array $context
-     * @return void
+     * Adds handler to the current channel.
+     * @param WriterInterface $writer
      */
-    public function log($level, $message, array $context = array())
+    public function addWriter(WriterInterface $writer)
     {
-        $data = [
-                'datetime' => $this->datetimeTracker->getNow(),
-                'message' => $message,
-                'level' => $level,
-            ] + array_merge($this->fields, $context);
-
-        if ($this->isExpressMode) {
-            $this->queue[] = $data;
-            if (count($this->queue) > $this->expressMaxLogsCount && $this->memoryLimit !== -1 && memory_get_usage(true) > $this->memoryLimit) {
-                $this->batchBuffer();
-            }
-            return;
-        }
-
-        foreach ($this->writers as $handler) {
-            $handler->write($data);
-        }
+        $this->writers[] = $writer;
     }
 
+    /**
+     * @param string $name
+     * @param mixed $value
+     * @return Logger
+     */
+    public function setField(string $name, $value): Logger
+    {
+        $this->fields[$name] = $value;
+        return $this;
+    }
+
+    /**
+     * Configure express mode.
+     * @param bool $isExpressMode Enable/disable express mode
+     * @param bool $useFlush Enable/disable flush content.
+     * @param int $memWatchThreshold Number of logs in a queue after which the memory usage tracking is started
+     * @param int $bufferSize Number of logs to process when allowed memory size is achieved.
+     */
+    public function setExpressMode(
+        bool $isExpressMode,
+        bool $useFlush = true,
+        int $memWatchThreshold = 1000,
+        int $bufferSize = 200
+    ): Logger {
+        $this->isExpressMode = $isExpressMode;
+        $this->bufferSize = $bufferSize;
+        $this->memWatchThreshold = $memWatchThreshold;
+        if ($isExpressMode) {
+            $this->useFlush = $useFlush;
+            $this->calcMemoryLimit();
+        } else {
+            $this->useFlush = false;
+            $this->setMemoryLimit(-1);
+        }
+
+        return $this;
+    }
 
     /**
      * Calculates a memory limit for express mode.
@@ -154,23 +179,71 @@ class Logger extends AbstractLogger
     }
 
     /**
-     * Configure express mode.
-     * @param bool $isExpressMode Enable/disable express mode
-     * @param bool $useFlush Enable/disable flush content.
-     * @param int $bufferSize Number of logs to process when allowed memory size is achieved.
+     * Logs with an arbitrary level.
+     *
+     * @param mixed $level
+     * @param string $message
+     * @param array $context
+     * @return void
      */
-    public function setExpressMode(bool $isExpressMode, bool $useFlush = true, int $bufferSize = 200): Logger
+    public function log($level, $message, array $context = array())
     {
-        $this->isExpressMode = $isExpressMode;
+        $data = [
+                'datetime' => $this->datetimeTracker->getNow(),
+                'message' => $message,
+                'level' => $level,
+            ] + array_merge($this->fields, $context);
+
         if ($this->isExpressMode) {
-            $this->useFlush = $useFlush;
-            $this->bufferSize = $bufferSize;
-            $this->calcMemoryLimit();
-        } else {
-            $this->useFlush = false;
-            $this->memoryLimit = -1;
+            $this->queue[] = $data;
+            ++$this->queueSize;
+            if (
+                $this->queueSize > $this->memWatchThreshold
+                && $this->memoryLimit !== -1
+                && memory_get_usage(true) > $this->memoryLimit
+            ) {
+                $this->batchBuffer();
+            }
+            return;
         }
-        return $this;
+
+        foreach ($this->writers as $writer) {
+            $writer->write($data);
+        }
+    }
+
+    /**
+     * Process a part of logs queue in express mode.
+     */
+    protected function batchBuffer(): void
+    {
+        if (!$this->queueSize) {
+            return;
+        }
+        $data = array_splice($this->queue, 0, $this->bufferSize);
+        foreach ($this->writers as $handler) {
+            $handler->process($data);
+        }
+        $this->queueSize = count($this->queue);
+    }
+
+    /**
+     * Process logs queue in express mode.
+     */
+    public function batch(): void
+    {
+        if (!$this->isExpressMode) {
+            return;
+        }
+
+        if (empty($this->queue)) {
+            return;
+        }
+        $this->flush();
+        foreach ($this->writers as $writer) {
+            $writer->process($this->queue);
+        }
+        $this->queueSize = count($this->queue);
     }
 
     /**
@@ -192,63 +265,11 @@ class Logger extends AbstractLogger
     }
 
     /**
-     * Process logs queue in express mode.
-     */
-    public function batch(): void
-    {
-        if (!$this->isExpressMode) {
-            return;
-        }
-
-        if (empty($this->queue)) {
-            return;
-        }
-        $this->flush();
-        foreach ($this->writers as $handler) {
-            $handler->process($this->queue);
-        }
-    }
-
-    /**
-     * Process a part of logs queue in express mode.
-     */
-    protected function batchBuffer(): void
-    {
-        if (empty($this->queue)) {
-            return;
-        }
-        $data = array_splice($this->queue, 0, $this->bufferSize);
-        foreach ($this->writers as $handler) {
-            $handler->process($data);
-        }
-    }
-
-    /**
      * @return WriterInterface[]
      */
     public function getWriters(): array
     {
         return $this->writers;
-    }
-
-    /**
-     * Adds handler to the current channel.
-     * @param WriterInterface $writer
-     */
-    public function addWriter(WriterInterface $writer)
-    {
-        $this->writers[] = $writer;
-    }
-
-    /**
-     * @param string $name
-     * @param mixed $value
-     * @return Logger
-     */
-    public function setField(string $name, $value): Logger
-    {
-        $this->fields[$name] = $value;
-        return $this;
     }
 
     /**
@@ -270,18 +291,19 @@ class Logger extends AbstractLogger
     }
 
     /**
-     * @param int $memoryLimit  -1 to disable memory limit or memory size in bytes.
-     */
-    public function setMemoryLimit(int $memoryLimit): void
-    {
-        $this->memoryLimit = $memoryLimit;
-    }
-    /**
      * @return int
      */
     public function getMemoryLimit(): int
     {
         return $this->memoryLimit;
+    }
+
+    /**
+     * @param int $memoryLimit -1 to disable memory limit or memory size in bytes.
+     */
+    public function setMemoryLimit(int $memoryLimit): void
+    {
+        $this->memoryLimit = $memoryLimit;
     }
 
     /**

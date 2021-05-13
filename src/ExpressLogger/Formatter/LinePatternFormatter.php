@@ -16,7 +16,7 @@ use ExpressLogger\API\FormatterInterface;
 
 /**
  * Class LinePatternFormatter
- * @package Logger\Formatters
+ * @package ExpressLogger\Formatter
  */
 class LinePatternFormatter implements FormatterInterface
 {
@@ -36,7 +36,7 @@ class LinePatternFormatter implements FormatterInterface
     public function __construct(?string $dateFormat = null, ?string $logFormat = null, $delimiter = '%')
     {
         if ($dateFormat) {
-            $this->dateFormat = $dateFormat;
+            $this->setDateFormat($dateFormat);
         }
         if ($logFormat) {
             $this->setLogFormat($logFormat);

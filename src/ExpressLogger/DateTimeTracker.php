@@ -15,6 +15,7 @@ use DateTimeZone;
 use DateInterval;
 use DateTimeImmutable;
 use DateTimeInterface;
+use Exception;
 
 class DateTimeTracker extends DateTimeImmutable
 {
@@ -22,19 +23,16 @@ class DateTimeTracker extends DateTimeImmutable
      * @var int|float
      */
     protected $timer;
-    protected \DateInterval $dateInterval;
+    protected DateInterval $dateInterval;
 
     /**
      * DateTimeTracker constructor.
      * @param string $datetime
+     * @throws Exception
      */
     public function __construct($datetime = 'now')
     {
-        try {
-            parent::__construct($datetime, new DateTimeZone(date_default_timezone_get()));
-        } catch (\Exception $e) {
-            error_log($e->getMessage());
-        }
+        parent::__construct($datetime, new DateTimeZone(date_default_timezone_get()));
         $this->timer = hrtime(true);
         $this->dateInterval = new DateInterval('PT0S');
     }

@@ -36,6 +36,6 @@
     "cs": "./vendor/bin/phpcs --colors --encoding=utf-8 --standard=PSR12 --runtime-set ignore_warnings_on_exit 1  ./src/ExpressLogger",
     "cs-fix": "./vendor/bin/phpcbf --encoding=utf-8 --standard=PSR12  -n --runtime-set ignore_warnings_on_exit 1 ./src/ExpressLogger",
     "test": "./vendor/bin/phpunit --testdox  -v -c tests/phpunit.xml",
-    "coverage": "./vendor/bin/phpunit --testdox -v -c tests/phpunit-cover.xml "
+    "coverage": "php -d xdebug.mode=coverage ./vendor/bin/phpunit --testdox -c tests/phpunit-cover.xml "
   }
 }

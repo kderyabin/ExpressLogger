@@ -13,6 +13,10 @@ use ExpressLogger\API\{FilterCollectionInterface, FormatterInterface, WriterInte
 use ExpressLogger\Filter\FilterCollectionTrait;
 use ExpressLogger\Formatter\JsonFormatter;
 
+/**
+ * Class FileWriter
+ * @package ExpressLogger\Writer
+ */
 class FileWriter implements WriterInterface, FilterCollectionInterface
 {
     use FilterCollectionTrait;
@@ -85,7 +89,7 @@ class FileWriter implements WriterInterface, FilterCollectionInterface
         $msg = '';
         foreach ($logs as $data) {
             $log = $this->applyFilters($data);
-            if (false === $log) {
+            if (!$log) {
                 continue;
             }
 
@@ -103,7 +107,7 @@ class FileWriter implements WriterInterface, FilterCollectionInterface
      */
     public function open(): bool
     {
-        $this->resource = fopen($this->path, 'ab');
+        $this->resource = @fopen($this->path, 'ab');
         if (false === $this->resource) {
             $this->isDisabled = true;
             return false;

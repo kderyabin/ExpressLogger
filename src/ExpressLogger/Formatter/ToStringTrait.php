@@ -11,13 +11,15 @@ declare(strict_types=1);
 
 namespace ExpressLogger\Formatter;
 
+use DateTimeInterface;
+
 /**
  * Trait ToStringTrait
- * @package Logger\Formatters
+ * @package ExpressLogger\Formatter
  */
 trait ToStringTrait
 {
-    public $jsonFlags = JSON_ERROR_NONE | JSON_UNESCAPED_SLASHES;
+    public int $jsonFlags = JSON_ERROR_NONE | JSON_UNESCAPED_SLASHES;
 
     protected string $dateFormat = 'Y-m-d H:i:s.uO';
 
@@ -32,23 +34,24 @@ trait ToStringTrait
         if (is_string($value)) {
             return $value;
         }
-        switch (gettype($value)) {
-            case 'object':
-                if (null !== $this->dateFormat && $value instanceof \DateTimeInterface) {
-                    return $value->format($this->dateFormat);
-                }
-                if ($value instanceof \Throwable) {
-                    return $value->getMessage() . ' ' . $value->getTraceAsString();
-                }
-                if (method_exists($value, '__toString')) {
-                    return $value->__toString();
-                }
-                break;
-            case 'resource':
-                return (string)$value;
-            case 'resource (closed)':
-                return ((string)$value) . ' (closed)';
+        $type = gettype($value);
+        if ($type === 'object') {
+            if (null !== $this->dateFormat && $value instanceof DateTimeInterface) {
+                return $value->format($this->dateFormat);
+            }
+            if (method_exists($value, '__toString')) {
+                return $value->__toString();
+            }
         }
+
+        if ($type === 'resource') {
+            return (string)$value;
+        }
+
+        if ($type === 'resource (closed)') {
+            return ((string)$value) . ' (closed)';
+        }
+
         return json_encode($value, $this->jsonFlags);
     }
 
@@ -59,5 +62,21 @@ trait ToStringTrait
     public function removeEOL(string $message): string
     {
         return strtr($message, ["\r" => '', "\n" => '']);
+    }
+
+    /**
+     * @param string $dateFormat
+     */
+    public function setDateFormat(string $dateFormat): void
+    {
+        $this->dateFormat = $dateFormat;
+    }
+
+    /**
+     * @param int $jsonFlags
+     */
+    public function setJsonFlags(int $jsonFlags): void
+    {
+        $this->jsonFlags = $jsonFlags;
     }
 }

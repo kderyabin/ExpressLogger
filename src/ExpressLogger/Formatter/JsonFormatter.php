@@ -15,19 +15,31 @@ use ExpressLogger\API\FormatterInterface;
 
 /**
  * Class JsonFormatter
- * @package Logger\Formatters
+ * @package ExpressLogger\Formatter
  */
 class JsonFormatter implements FormatterInterface
 {
+    /**
+     * @see json_encode flags param (https://www.php.net/manual/en/function.json-encode.php).
+     * @var int|string
+     */
     protected int $flags =  JSON_ERROR_NONE | JSON_UNESCAPED_SLASHES;
+    /**
+     * End line to append to generated json.
+     * @var string
+     */
     protected string $eol = '';
+    /**
+     * "depth" parameter for json_encode function.
+     * @var int
+     */
     protected int $depth = 5;
 
     /**
      * JsonFormatter constructor.
-     * @param int|null $flags See json_encode flags param (https://www.php.net/manual/en/function.json-encode.php).
-     * @param string|null $eol End of line to append to generated json content/
-     * @param int|null $depth   See json_encode depth param (https://www.php.net/manual/en/function.json-encode.php).
+     * @param int|null $flags json_encode flags param
+     * @param string|null $eol End line to append to generated json content.
+     * @param int|null $depth   json_encode depth param
      */
     public function __construct(?int $flags = null, ?string $eol = null, ?int $depth = null)
     {

@@ -12,7 +12,4 @@
       <directory suffix="Test.php">./ExpressLogger</directory>
     </testsuite>
   </testsuites>
-  <logging>
-    <testdoxHtml outputFile="coverage/testdox.html"/>
-  </logging>
 </phpunit>

@@ -14,8 +14,8 @@ namespace ExpressLogger\Formatter;
 use ExpressLogger\API\FormatterInterface;
 
 /**
- * Class JsonFormatter
- * @package Logger\Formatters
+ * Class JsonPrettyFormatter
+ * @package ExpressLogger\Formatter
  */
 class JsonPrettyFormatter extends JsonFormatter implements FormatterInterface
 {
