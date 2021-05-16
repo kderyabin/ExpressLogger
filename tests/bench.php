@@ -1,7 +1,7 @@
 <?php
 
 use ExpressLogger\Formatter\JsonPrettyFormatter;
-use ExpressLogger\Logger;
+use ExpressLogger\ExpressLogger;
 use ExpressLogger\Writer\FileWriter;
 
 require __DIR__ . '/bootstrap.php';
@@ -11,17 +11,15 @@ require __DIR__ . '/bootstrap.php';
 
 function expressLogger()
 {
-    //ini_set('memory_limit', '128M');
-    $logger = new Logger(new FileWriter(TEST_LOG_FILE, new JsonPrettyFormatter()), []);
-    $logger->setExpressMode(true);
+    ini_set('memory_limit', '5M');
+    $logger = new ExpressLogger(new FileWriter(TEST_LOG_FILE, new JsonPrettyFormatter()));
+    //$logger->setLoggingStrategy(new \ExpressLogger\LoggingStrategy\StandardStrategy());
     $eta = -hrtime(true);
-    for ($i = 0; $i < 1000; $i++) {
+    for ($i = 0; $i < 100_000; $i++) {
         $logger->info('Hello', ['exception' => 'is evil']);
     }
     $eta += hrtime(true);
     print_r([
-        'isExpressMode' => $logger->isExpressMode(),
-        'buffer' => $logger->getBufferSize(),
         'memory_get_usage_false' => memory_get_usage(),
         'memory_get_usage_true' => memory_get_usage(true),
         'memory_get_peak_usage_false' => memory_get_peak_usage(false),
