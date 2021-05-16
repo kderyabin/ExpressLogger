@@ -10,13 +10,15 @@
 namespace ExpressLogger\Tests;
 
 use ExpressLogger\API\WriterInterface;
-use ExpressLogger\Logger;
+use ExpressLogger\ExpressLogger;
+use ExpressLogger\LoggingStrategy\ExpressStrategy;
+use ExpressLogger\LoggingStrategy\StandardStrategy;
 use PHPUnit\Framework\TestCase;
 
-class LoggerTest extends TestCase
+class ExpressLoggerTest extends TestCase
 {
     /**
-     * @testdox Logger initialization
+     * @testdox ExpressLogger initialization
      */
     public function testInitLogger()
     {
@@ -31,11 +33,10 @@ class LoggerTest extends TestCase
                 return 0;
             }
         };
-        $logger = new Logger($writer, ['client_ip' => '127.0.0.1']);
+        $logger = new ExpressLogger($writer, ['client_ip' => '127.0.0.1']);
         $this->assertNotEmpty($logger->getWriters());
         $this->assertArrayHasKey('client_ip', $logger->getFields());
-        $this->assertTrue($logger->isExpressMode());
-        $this->assertTrue($logger->isUseFlush());
+        $this->assertInstanceOf(ExpressStrategy::class ,$logger->getLoggingStrategy());
     }
 
     /**
@@ -57,7 +58,8 @@ class LoggerTest extends TestCase
                 return 0;
             }
         };
-        $logger = new Logger($writer, ['client_ip' => '127.0.0.1'], false);
+        $logger = new ExpressLogger($writer, ['client_ip' => '127.0.0.1']);
+        $logger->setLoggingStrategy(new StandardStrategy());
         $logger->log('debug', 'message', [ 'extra' => 'yes']);
 
         $this->assertArrayHasKey('datetime', $writer->log);
@@ -84,9 +86,10 @@ class LoggerTest extends TestCase
                 return count($this->log = $logs);
             }
         };
-        $logger = new Logger($writer);
-        $logger->setExpressMode(true, false, 0);
-        $logger->setMemoryLimit(0);
+        $logger = new ExpressLogger($writer);
+        $xStrategy = new ExpressStrategy(false, 0);
+        $xStrategy->setMemoryLimit(0);
+        $logger->setLoggingStrategy($xStrategy);
         $logger->log('debug', 'message');
 
         $this->assertNotEmpty($writer->log);
@@ -110,7 +113,7 @@ class LoggerTest extends TestCase
                 return count($this->log = $logs);
             }
         };
-        $logger = new Logger($writer);
+        $logger = new ExpressLogger($writer);
         $logger->setExpressMode(true, false);
 
         $logger->log('debug', 'message 1');
@@ -127,7 +130,7 @@ class LoggerTest extends TestCase
      */
     public function setField()
     {
-        $logger = new Logger();
+        $logger = new ExpressLogger();
         $logger->setField('client_ip', '127.0.0.1');
         $this->assertContains('127.0.0.1', $logger->getFields());
         $this->assertArrayHasKey('client_ip', $logger->getFields());
@@ -139,7 +142,7 @@ class LoggerTest extends TestCase
      */
     public function setFields()
     {
-        $logger = new Logger();
+        $logger = new ExpressLogger();
         $logger->setFields([
             'client_ip' => '127.0.0.1',
             'host' => 'localhost'
@@ -155,7 +158,7 @@ class LoggerTest extends TestCase
     public function testSetExpressModeOn()
     {
         ini_set('memory_limit', '10M');
-        $logger = new Logger();
+        $logger = new ExpressLogger();
         $logger->setExpressMode(true, true, 10, 15);
 
         $this->assertEquals(10, $logger->getMemWatchThreshold());
@@ -171,7 +174,7 @@ class LoggerTest extends TestCase
     public function testSetExpressModeOff()
     {
         ini_set('memory_limit', '10M');
-        $logger = new Logger();
+        $logger = new ExpressLogger();
         $logger->setExpressMode(false, true, 10, 15);
 
         $this->assertEquals(10, $logger->getMemWatchThreshold());
@@ -187,7 +190,7 @@ class LoggerTest extends TestCase
     public function testMemLimitM()
     {
         ini_set('memory_limit', '10M');
-        $logger = new Logger();
+        $logger = new ExpressLogger();
         $logger->setExpressMode(true);
 
         $this->assertEquals(intval(10 * 0.6 * (1024 ** 2)), $logger->getMemoryLimit());
@@ -199,7 +202,7 @@ class LoggerTest extends TestCase
     public function testMemLimitG()
     {
         ini_set('memory_limit', '1G');
-        $logger = new Logger();
+        $logger = new ExpressLogger();
         $logger->setExpressMode(true);
         $this->assertEquals(intval(1 * 0.6 * (1024 ** 3)), $logger->getMemoryLimit());
     }
@@ -209,7 +212,7 @@ class LoggerTest extends TestCase
     public function testMemLimitK()
     {
         ini_set('memory_limit', '1K');
-        $logger = new Logger();
+        $logger = new ExpressLogger();
         $logger->setExpressMode(true);
 
         $this->assertEquals(intval(1 * 0.6 * (1024)), $logger->getMemoryLimit());
@@ -220,7 +223,7 @@ class LoggerTest extends TestCase
     public function testMemLimit()
     {
         ini_set('memory_limit', '-1');
-        $logger = new Logger();
+        $logger = new ExpressLogger();
         $logger->setExpressMode(true);
         $this->assertEquals(-1, $logger->getMemoryLimit());
     }
