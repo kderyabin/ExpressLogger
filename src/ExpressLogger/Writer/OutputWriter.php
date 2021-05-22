@@ -12,13 +12,13 @@ namespace ExpressLogger\Writer;
 use ExpressLogger\API\{FormatterInterface};
 
 /**
- * Class OutputWrite
+ * Class OutputWriter
  * @package ExpressLogger\Writer
  */
-class OutputWrite extends FileWriter
+class OutputWriter extends FileWriter
 {
     /**
-     * OutputWrite constructor.
+     * OutputWriter constructor.
      * @param FormatterInterface|null $formatter Formatter.
      */
     public function __construct(?FormatterInterface $formatter = null)
