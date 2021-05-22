@@ -61,9 +61,9 @@ class ExpressStrategy implements LoggingStrategyInterface
      */
     public function __construct(bool $useFlush = true, int $memWatchThreshold = 1000, int $bufferSize = 200)
     {
-        $this->bufferSize = $bufferSize;
-        $this->memWatchThreshold = $memWatchThreshold;
-        $this->useFlush = $useFlush;
+        $this->setBufferSize($bufferSize);
+        $this->setMemWatchThreshold($memWatchThreshold);
+        $this->setUseFlush($useFlush);
         $this->calcMemoryLimit();
         register_shutdown_function([$this, 'batch']);
     }
@@ -178,10 +178,12 @@ class ExpressStrategy implements LoggingStrategyInterface
 
     /**
      * @param int $memoryLimit -1 to disable memory limit or memory size in bytes.
+     * @return ExpressStrategy
      */
-    public function setMemoryLimit(int $memoryLimit): void
+    public function setMemoryLimit(int $memoryLimit): ExpressStrategy
     {
         $this->memoryLimit = $memoryLimit;
+        return $this;
     }
 
     /**
@@ -190,6 +192,16 @@ class ExpressStrategy implements LoggingStrategyInterface
     public function isUseFlush(): bool
     {
         return $this->useFlush;
+    }
+
+    /**
+     * @param bool $useFlush
+     * @return ExpressStrategy
+     */
+    public function setUseFlush(bool $useFlush): ExpressStrategy
+    {
+        $this->useFlush = $useFlush;
+        return $this;
     }
 
     /**
@@ -207,5 +219,25 @@ class ExpressStrategy implements LoggingStrategyInterface
     public function getMemWatchThreshold(): int
     {
         return $this->memWatchThreshold;
+    }
+
+    /**
+     * @param int $bufferSize
+     * @return ExpressStrategy
+     */
+    public function setBufferSize(int $bufferSize): ExpressStrategy
+    {
+        $this->bufferSize = $bufferSize;
+        return $this;
+    }
+
+    /**
+     * @param int $memWatchThreshold
+     * @return ExpressStrategy
+     */
+    public function setMemWatchThreshold(int $memWatchThreshold): ExpressStrategy
+    {
+        $this->memWatchThreshold = $memWatchThreshold;
+        return $this;
     }
 }
