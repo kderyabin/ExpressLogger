@@ -72,7 +72,9 @@ trait FilterCollectionTrait
      */
     public function setFilters(array $filters)
     {
-        $this->filters = $filters;
+        foreach ($filters as $filter) {
+            $this->addFilter($filter);
+        }
         return $this;
     }
 }
