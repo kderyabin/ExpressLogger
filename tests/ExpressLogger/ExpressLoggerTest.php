@@ -9,10 +9,10 @@
 
 namespace ExpressLogger\Tests;
 
+use ExpressLogger\API\LoggingStrategyInterface;
 use ExpressLogger\API\WriterInterface;
 use ExpressLogger\ExpressLogger;
 use ExpressLogger\LoggingStrategy\ExpressStrategy;
-use ExpressLogger\LoggingStrategy\LoggingStrategyInterface;
 use PHPUnit\Framework\TestCase;
 
 class ExpressLoggerTest extends TestCase
@@ -58,7 +58,7 @@ class ExpressLoggerTest extends TestCase
                 return 0;
             }
         };
-        $strategy = new class() implements LoggingStrategyInterface{
+        $strategy = new class() implements LoggingStrategyInterface {
             /**
              * @var WriterInterface[]
              */

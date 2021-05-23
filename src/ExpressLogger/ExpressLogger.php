@@ -12,9 +12,9 @@ declare(strict_types=1);
 namespace ExpressLogger;
 
 use Exception;
+use ExpressLogger\API\LoggingStrategyInterface;
 use ExpressLogger\API\WriterInterface;
 use ExpressLogger\LoggingStrategy\ExpressStrategy;
-use ExpressLogger\LoggingStrategy\LoggingStrategyInterface;
 use Psr\Log\AbstractLogger;
 
 /**

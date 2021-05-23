@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace ExpressLogger\LoggingStrategy;
 
+use ExpressLogger\API\LoggingStrategyInterface;
 use ExpressLogger\API\WriterInterface;
 
 class ExpressStrategy implements LoggingStrategyInterface
