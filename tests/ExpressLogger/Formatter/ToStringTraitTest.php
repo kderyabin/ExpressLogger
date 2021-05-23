@@ -63,6 +63,6 @@ class ToStringTraitTest extends TestCase
     public function testRemoveEOL()
     {
         $input = "1 Line\n2 Line\r\n";
-        $this->assertEquals('1 Line2 Line', $this->instance->removeEOL($input));
+        $this->assertEquals('1 Line2 Line', $this->instance->removeEol($input));
     }
 }

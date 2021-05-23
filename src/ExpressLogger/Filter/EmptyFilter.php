@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2021 Konstantin Deryabin
  *
@@ -16,7 +17,6 @@ use ExpressLogger\API\FilterInterface;
  */
 class EmptyFilter implements FilterInterface
 {
-
     /**
      * @inheritDoc
      */

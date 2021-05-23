@@ -28,13 +28,13 @@ class ErrorLogWriter implements WriterInterface, FilterCollectionInterface
 
     /**
      * Formatter used for this handler
-     * @var null|FormatterInterface
+     * @var FormatterInterface
      */
-    protected ?FormatterInterface $formatter;
+    protected FormatterInterface $formatter;
 
     public function __construct(?FormatterInterface $formatter = null)
     {
-        $this->formatter = $formatter ?? new JsonFormatter();
+        $this->setFormatter($formatter ?? new JsonFormatter());
     }
 
     /**
@@ -59,5 +59,23 @@ class ErrorLogWriter implements WriterInterface, FilterCollectionInterface
         }
         ini_set('log_errors_max_len', $sizeLimit);
         return $count;
+    }
+
+    /**
+     * @return FormatterInterface
+     */
+    public function getFormatter(): FormatterInterface
+    {
+        return $this->formatter;
+    }
+
+    /**
+     * @param FormatterInterface $formatter
+     * @return ErrorLogWriter
+     */
+    public function setFormatter(FormatterInterface $formatter): ErrorLogWriter
+    {
+        $this->formatter = $formatter;
+        return $this;
     }
 }

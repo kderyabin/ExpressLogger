@@ -56,27 +56,32 @@ trait ToStringTrait
     }
 
     /**
+     * Removes end line characters
      * @param string $message
      * @return string
      */
-    public function removeEOL(string $message): string
+    public function removeEol(string $message): string
     {
         return strtr($message, ["\r" => '', "\n" => '']);
     }
 
     /**
      * @param string $dateFormat
+     * @return static
      */
-    public function setDateFormat(string $dateFormat): void
+    public function setDateFormat(string $dateFormat)
     {
         $this->dateFormat = $dateFormat;
+        return $this;
     }
 
     /**
      * @param int $jsonFlags
+     * @return static
      */
-    public function setJsonFlags(int $jsonFlags): void
+    public function setJsonFlags(int $jsonFlags)
     {
         $this->jsonFlags = $jsonFlags;
+        return $this;
     }
 }

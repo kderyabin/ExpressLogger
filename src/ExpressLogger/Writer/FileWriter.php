@@ -33,9 +33,9 @@ class FileWriter implements WriterInterface, FilterCollectionInterface
     private $resource;
     /**
      * Formatter used for this handler
-     * @var null|FormatterInterface
+     * @var FormatterInterface
      */
-    protected ?FormatterInterface $formatter;
+    protected FormatterInterface $formatter;
     /**
      * Disables logging.
      * This option is set automatically to TRUE if a log file can't be opened.
@@ -50,8 +50,8 @@ class FileWriter implements WriterInterface, FilterCollectionInterface
      */
     public function __construct(string $path, ?FormatterInterface $formatter = null)
     {
-        $this->path = $path;
-        $this->formatter = $formatter ?? new JsonFormatter();
+        $this->setPath($path);
+        $this->setFormatter($formatter ?? new JsonFormatter());
         $this->open();
     }
 
@@ -109,7 +109,7 @@ class FileWriter implements WriterInterface, FilterCollectionInterface
     {
         $this->resource = @fopen($this->path, 'ab');
         if (false === $this->resource) {
-            $this->isDisabled = true;
+            $this->setIsDisabled(true);
             return false;
         }
         return true;
@@ -123,5 +123,59 @@ class FileWriter implements WriterInterface, FilterCollectionInterface
         if (is_resource($this->resource)) {
             fclose($this->resource);
         }
+    }
+
+    /**
+     * @return string
+     */
+    public function getPath(): string
+    {
+        return $this->path;
+    }
+
+    /**
+     * @param string $path
+     * @return FileWriter
+     */
+    public function setPath(string $path): FileWriter
+    {
+        $this->path = $path;
+        return $this;
+    }
+
+    /**
+     * @return FormatterInterface
+     */
+    public function getFormatter(): FormatterInterface
+    {
+        return $this->formatter;
+    }
+
+    /**
+     * @param FormatterInterface $formatter
+     * @return FileWriter
+     */
+    public function setFormatter(FormatterInterface $formatter): FileWriter
+    {
+        $this->formatter = $formatter;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isDisabled(): bool
+    {
+        return $this->isDisabled;
+    }
+
+    /**
+     * @param bool $isDisabled
+     * @return FileWriter
+     */
+    public function setIsDisabled(bool $isDisabled): FileWriter
+    {
+        $this->isDisabled = $isDisabled;
+        return $this;
     }
 }

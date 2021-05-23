@@ -37,7 +37,7 @@ class KeyFormatter implements FormatterInterface
         if ($dateFormat) {
             $this->setDateFormat($dateFormat);
         }
-        $this->eol = $eol;
+        $this->setEol($eol);
     }
 
     /**
@@ -52,5 +52,23 @@ class KeyFormatter implements FormatterInterface
         }
         $result .= $this->eol;
         return $result;
+    }
+
+    /**
+     * @return string
+     */
+    public function getEol(): string
+    {
+        return $this->eol;
+    }
+
+    /**
+     * @param string $eol
+     * @return KeyFormatter
+     */
+    public function setEol(string $eol): KeyFormatter
+    {
+        $this->eol = $eol;
+        return $this;
     }
 }

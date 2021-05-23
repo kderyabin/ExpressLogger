@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace ExpressLogger\Writer;
 
+use ExpressLogger\Formatter\JsonFormatter;
 use ExpressLogger\API\{FormatterInterface, WriterInterface};
 use ExpressLogger\Filter\FilterCollectionTrait;
 use Psr\Log\LogLevel;
@@ -25,9 +26,9 @@ class SyslogWriter implements WriterInterface
 
     /**
      * Formatter used for this handler
-     * @var null|FormatterInterface
+     * @var FormatterInterface
      */
-    protected ?FormatterInterface $formatter;
+    protected FormatterInterface $formatter;
 
     /**
      * The string prefix is added to each message.
@@ -63,7 +64,7 @@ class SyslogWriter implements WriterInterface
     ];
     /**
      * Disables logging.
-     * This option is set automatically to TRUE if log destination can't be opened.
+     * This option is set automatically to TRUE if a log destination can't be opened.
      * @var bool
      */
     protected bool $isDisabled = false;
@@ -81,17 +82,15 @@ class SyslogWriter implements WriterInterface
         ?int $flags = null,
         ?int $facility = null
     ) {
-        if ($formatter) {
-            $this->formatter = $formatter;
-        }
+        $this->setFormatter($formatter ?? new JsonFormatter());
         if ($prefix) {
-            $this->prefix = $prefix;
+            $this->setPrefix($prefix);
         }
         if ($flags) {
-            $this->flags = $flags;
+            $this->setFlags($flags);
         }
         if ($facility) {
-            $this->facility = $facility;
+            $this->setFacility($facility);
         }
         $this->open();
     }
@@ -104,7 +103,7 @@ class SyslogWriter implements WriterInterface
     public function open(): bool
     {
         if (!openlog($this->prefix, $this->flags, $this->facility)) {
-            $this->isDisabled = true;
+            $this->setIsDisabled(true);
             return false;
         }
         return true;
@@ -146,5 +145,113 @@ class SyslogWriter implements WriterInterface
             $log && syslog($this->getSystemLevel($log['level']), $this->formatter->format($log)) &&  ++$count;
         }
         return $count;
+    }
+
+    /**
+     * @return FormatterInterface
+     */
+    public function getFormatter(): FormatterInterface
+    {
+        return $this->formatter;
+    }
+
+    /**
+     * @param FormatterInterface $formatter
+     * @return SyslogWriter
+     */
+    public function setFormatter(FormatterInterface $formatter): SyslogWriter
+    {
+        $this->formatter = $formatter;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPrefix(): string
+    {
+        return $this->prefix;
+    }
+
+    /**
+     * @param string $prefix
+     * @return SyslogWriter
+     */
+    public function setPrefix(string $prefix): SyslogWriter
+    {
+        $this->prefix = $prefix;
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getFlags()
+    {
+        return $this->flags;
+    }
+
+    /**
+     * @param int $flags
+     * @return SyslogWriter
+     */
+    public function setFlags($flags)
+    {
+        $this->flags = $flags;
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getFacility(): int
+    {
+        return $this->facility;
+    }
+
+    /**
+     * @param int $facility
+     * @return SyslogWriter
+     */
+    public function setFacility(int $facility): SyslogWriter
+    {
+        $this->facility = $facility;
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getSysLevel(): array
+    {
+        return $this->sysLevel;
+    }
+
+    /**
+     * @param array $sysLevel
+     * @return SyslogWriter
+     */
+    public function setSysLevel(array $sysLevel): SyslogWriter
+    {
+        $this->sysLevel = $sysLevel;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isDisabled(): bool
+    {
+        return $this->isDisabled;
+    }
+
+    /**
+     * @param bool $isDisabled
+     * @return SyslogWriter
+     */
+    public function setIsDisabled(bool $isDisabled): SyslogWriter
+    {
+        $this->isDisabled = $isDisabled;
+        return $this;
     }
 }

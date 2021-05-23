@@ -57,4 +57,22 @@ trait FilterCollectionTrait
     {
         $this->filters[] = $filter instanceof FilterInterface ? $filter : new CallbackFilter($filter);
     }
+
+    /**
+     * @return FilterInterface[]
+     */
+    public function getFilters(): array
+    {
+        return $this->filters;
+    }
+
+    /**
+     * @param FilterInterface[] $filters
+     * @return static
+     */
+    public function setFilters(array $filters)
+    {
+        $this->filters = $filters;
+        return $this;
+    }
 }

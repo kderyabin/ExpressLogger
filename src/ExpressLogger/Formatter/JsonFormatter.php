@@ -44,14 +44,14 @@ class JsonFormatter implements FormatterInterface
     public function __construct(?int $flags = null, ?string $eol = null, ?int $depth = null)
     {
         if (null !== $flags) {
-            $this->flags = $flags;
+            $this->setFlags($flags);
         }
         if (null !== $eol) {
-            $this->eol = $eol;
+            $this->setEol($eol);
         }
 
         if (null !== $depth) {
-            $this->depth = $depth;
+            $this->setDepth($depth);
         }
     }
 
@@ -63,5 +63,59 @@ class JsonFormatter implements FormatterInterface
     public function format(array $data): string
     {
         return json_encode($data, $this->flags, $this->depth) .  $this->eol;
+    }
+
+    /**
+     * @return int|string
+     */
+    public function getFlags()
+    {
+        return $this->flags;
+    }
+
+    /**
+     * @param int|string $flags
+     * @return JsonFormatter
+     */
+    public function setFlags($flags)
+    {
+        $this->flags = $flags;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getEol(): string
+    {
+        return $this->eol;
+    }
+
+    /**
+     * @param string $eol
+     * @return JsonFormatter
+     */
+    public function setEol(string $eol): JsonFormatter
+    {
+        $this->eol = $eol;
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getDepth(): int
+    {
+        return $this->depth;
+    }
+
+    /**
+     * @param int $depth
+     * @return JsonFormatter
+     */
+    public function setDepth(int $depth): JsonFormatter
+    {
+        $this->depth = $depth;
+        return $this;
     }
 }
