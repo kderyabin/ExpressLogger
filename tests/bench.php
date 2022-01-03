@@ -1,19 +1,18 @@
 <?php
-
-use ExpressLogger\Formatter\JsonPrettyFormatter;
-use ExpressLogger\ExpressLogger;
-use ExpressLogger\Writer\FileWriter;
-
 require __DIR__ . '/bootstrap.php';
 
+use ExpressLogger\Formatter\JsonFormatter;
+use ExpressLogger\Formatter\JsonPrettyFormatter;
+use ExpressLogger\ExpressLogger;
+use ExpressLogger\LoggingStrategy\StandardStrategy;
+use ExpressLogger\Writer\FileWriter;
 
-(fn() => expressLogger())();
 
 function expressLogger()
 {
-    ini_set('memory_limit', '5M');
-    $logger = new ExpressLogger(new FileWriter(TEST_LOG_FILE, new JsonPrettyFormatter()));
-    //$logger->setLoggingStrategy(new \ExpressLogger\LoggingStrategy\StandardStrategy());
+    //ini_set('memory_limit', '128M');
+    $logger = new ExpressLogger(new FileWriter(TEST_LOG_FILE, new JsonFormatter(eol : "\n")));
+    //$logger->setLoggingStrategy(new StandardStrategy());
     $eta = -hrtime(true);
     for ($i = 0; $i < 100_000; $i++) {
         $logger->info('Hello', ['exception' => 'is evil']);
@@ -27,3 +26,4 @@ function expressLogger()
     ]);
     print_r([$eta / 1e+6]); //nanoseconds to milliseconds
 }
+expressLogger();

@@ -52,7 +52,6 @@ class FileWriter implements WriterInterface, FilterCollectionInterface
     {
         $this->setPath($path);
         $this->setFormatter($formatter ?? new JsonFormatter());
-        $this->open();
     }
 
     public function __destruct()
@@ -70,6 +69,9 @@ class FileWriter implements WriterInterface, FilterCollectionInterface
         if ($this->isDisabled) {
             return false;
         }
+        if (!$this->resource && !$this->open()) {
+            return false;
+        }
         $log = $this->applyFilters($log);
 
         return $log && (@fwrite($this->resource, $this->formatter->format($log)) !== false);
@@ -84,7 +86,9 @@ class FileWriter implements WriterInterface, FilterCollectionInterface
         if ($this->isDisabled) {
             return 0;
         }
-
+        if (!$this->resource && !$this->open()) {
+            return false;
+        }
         $count = 0;
         $msg = '';
         foreach ($logs as $data) {
@@ -109,6 +113,7 @@ class FileWriter implements WriterInterface, FilterCollectionInterface
     {
         $this->resource = @fopen($this->path, 'ab');
         if (false === $this->resource) {
+            $this->resource = null;
             $this->setIsDisabled(true);
             return false;
         }
@@ -122,6 +127,7 @@ class FileWriter implements WriterInterface, FilterCollectionInterface
     {
         if (is_resource($this->resource)) {
             fclose($this->resource);
+            $this->resource = null;
         }
     }
 

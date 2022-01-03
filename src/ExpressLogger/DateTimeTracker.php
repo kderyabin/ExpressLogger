@@ -30,7 +30,7 @@ class DateTimeTracker extends DateTimeImmutable
      * @param string $datetime
      * @throws Exception
      */
-    public function __construct($datetime = 'now')
+    public function __construct(string $datetime = 'now')
     {
         parent::__construct($datetime, new DateTimeZone(date_default_timezone_get()));
         $this->timer = hrtime(true);

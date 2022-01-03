@@ -14,7 +14,7 @@ namespace ExpressLogger\Writer;
 use ExpressLogger\Formatter\JsonFormatter;
 use ExpressLogger\API\{FormatterInterface, WriterInterface};
 use ExpressLogger\Filter\FilterCollectionTrait;
-use Psr\Log\LogLevel;
+use ExpressLogger\PsrSysLevel;
 
 /**
  * Class SyslogWriter
@@ -48,20 +48,7 @@ class SyslogWriter implements WriterInterface
      * @var int
      */
     protected int $facility = LOG_USER;
-    /**
-     * Map Psr logger levels to system levels
-     * @var array
-     */
-    protected array $sysLevel = [
-        LogLevel::EMERGENCY => LOG_EMERG,
-        LogLevel::ALERT => LOG_ALERT,
-        LogLevel::CRITICAL => LOG_CRIT,
-        LogLevel::ERROR => LOG_ERR,
-        LogLevel::WARNING => LOG_WARNING,
-        LogLevel::NOTICE => LOG_NOTICE,
-        LogLevel::INFO => LOG_INFO,
-        LogLevel::DEBUG => LOG_DEBUG,
-    ];
+
     /**
      * Disables logging.
      * This option is set automatically to TRUE if a log destination can't be opened.
@@ -109,14 +96,6 @@ class SyslogWriter implements WriterInterface
         return true;
     }
 
-    /**
-     * @param string $level
-     * @return int
-     */
-    public function getSystemLevel(string $level): int
-    {
-        return $this->sysLevel[$level] ?? LOG_INFO;
-    }
 
     /**
      * Write a log message.
@@ -130,7 +109,7 @@ class SyslogWriter implements WriterInterface
         }
         $log = $this->applyFilters($log);
 
-        return $log && syslog($this->getSystemLevel($log['level']), $this->formatter->format($log));
+        return $log && syslog(PsrSysLevel::getSysLevel($log['level']), $this->formatter->format($log));
     }
 
 
@@ -142,7 +121,7 @@ class SyslogWriter implements WriterInterface
         }
         foreach ($logs as $log) {
             $log = $this->applyFilters($log);
-            $log && syslog($this->getSystemLevel($log['level']), $this->formatter->format($log)) &&  ++$count;
+            $log && syslog(PsrSysLevel::getSysLevel($log['level']), $this->formatter->format($log)) &&  ++$count;
         }
         return $count;
     }
