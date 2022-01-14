@@ -36,7 +36,7 @@ class ExpressLoggerTest extends TestCase
         $logger = new ExpressLogger($writer, ['client_ip' => '127.0.0.1']);
         $this->assertNotEmpty($logger->getWriters());
         $this->assertArrayHasKey('client_ip', $logger->getFields());
-        $this->assertInstanceOf(ExpressStrategy::class ,$logger->getLoggingStrategy());
+        $this->assertInstanceOf(ExpressStrategy::class, $logger->getLoggingStrategy());
     }
 
     /**
@@ -58,7 +58,7 @@ class ExpressLoggerTest extends TestCase
                 return 0;
             }
         };
-        $strategy = new class() implements LoggingStrategyInterface {
+        $strategy = new class () implements LoggingStrategyInterface {
             /**
              * @var WriterInterface[]
              */
@@ -69,7 +69,7 @@ class ExpressLoggerTest extends TestCase
              */
             public function setWriters(array $writers): void
             {
-               $this->writers = $writers;
+                $this->writers = $writers;
             }
 
             public function process(array $data): void

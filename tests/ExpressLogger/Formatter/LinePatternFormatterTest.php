@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) 2021 Konstantin Deryabin
  *
@@ -18,7 +19,7 @@ class LinePatternFormatterTest extends TestCase
      */
     public function testLinePatternFormatter()
     {
-        $formatter = new LinePatternFormatter('Y-m-d','[#datetime#]: #message#', '#');
+        $formatter = new LinePatternFormatter('Y-m-d', '[#datetime#]: #message#', '#');
 
         $log = [
             'message' => 'Log message',

@@ -114,9 +114,9 @@ class ExpressStrategyTest extends TestCase
      */
     public function testMemLimitK()
     {
-        ini_set('memory_limit', '1K');
+        ini_set('memory_limit', '10000K');
         $strategy = new ExpressStrategy();
-        $this->assertEquals(intval(1 * 0.6 * (1024)), $strategy->getMemoryLimit());
+        $this->assertEquals(intval(10000 * 0.6 * (1024)), $strategy->getMemoryLimit());
     }
 
     /**

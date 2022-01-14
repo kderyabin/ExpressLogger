@@ -13,14 +13,18 @@
   ],
   "keywords": ["fast logger", "logger", "log", "logging", "psr-3"],
   "require": {
-    "php": ">=7.4",
-    "psr/log": ">=1",
+    "php": "^8.0 || ^8.1",
+    "psr/log": "^2.0 || ^3.0",
     "ext-json": "*",
-    "expresslogger/api": ">=2"
+    "ext-mbstring": "*",
+    "expresslogger/api": "^2"
   },
   "require-dev": {
-    "squizlabs/php_codesniffer": "~3.5.8",
-    "phpunit/phpunit": "^9"
+    "squizlabs/php_codesniffer": "^3.6",
+    "phpunit/phpunit": "^9",
+    "ext-shmop": "*",
+    "ext-pcntl": "*",
+    "ext-sockets": "*"
   },
   "autoload": {
     "psr-4": {

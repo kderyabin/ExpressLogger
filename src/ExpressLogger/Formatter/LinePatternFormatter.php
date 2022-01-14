@@ -31,10 +31,13 @@ class LinePatternFormatter implements FormatterInterface
      * LinePatternFormatter constructor.
      * @param string|null $dateFormat
      * @param string|null $logFormat
-     * @param null|string|array $delimiter
+     * @param array|string|null $delimiter
      */
-    public function __construct(?string $dateFormat = null, ?string $logFormat = null, $delimiter = '%')
-    {
+    public function __construct(
+        ?string $dateFormat = null,
+        ?string $logFormat = null,
+        array | string | null $delimiter = '%'
+    ) {
         if ($dateFormat) {
             $this->setDateFormat($dateFormat);
         }

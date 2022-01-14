@@ -9,7 +9,7 @@ ExpressLogger is designed to have the least possible impact on the performance o
 
 # How it works
 
-## Logging stratgey
+## Logging strategy
 
 ExpressLogger comes with 2 modes or logging strategies : **express** (default mode) and **standard**. By the way, you 
 can implement and use your own strategy. 

@@ -16,6 +16,7 @@ use ExpressLogger\API\LoggingStrategyInterface;
 use ExpressLogger\API\WriterInterface;
 use ExpressLogger\LoggingStrategy\ExpressStrategy;
 use Psr\Log\AbstractLogger;
+use Stringable;
 
 /**
  * Class ExpressLogger
@@ -71,11 +72,11 @@ class ExpressLogger extends AbstractLogger
      * @param array $context
      * @return void
      */
-    public function log($level, $message, array $context = array())
+    public function log($level, string | Stringable $message, array $context = []): void
     {
         $data = [
                 'datetime' => $this->datetimeTracker->getNow(),
-                'message' => $message,
+                'message' => (string) $message,
                 'level' => $level,
             ] + array_merge($this->fields, $context);
         $this->loggingStrategy->process($data);
