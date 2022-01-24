@@ -71,13 +71,21 @@ class ExpressStrategy implements LoggingStrategyInterface
     }
 
     /**
+     * Gets php setting for memory limit.
+     * @return string|false
+     */
+    protected function getSystemMemoryLimit(): string|false
+    {
+        return ini_get('memory_limit');
+    }
+    /**
      * Calculates a memory limit for express mode.
      * Threshold is a 60% of allowed memory if is it's set up. See 'memory_limit' setting in php.ini.
      * Once the threshold is achieved the logger starts to write logs by batch.
      */
     public function calcMemoryLimit(): void
     {
-        $memoryLimit = ini_get('memory_limit');
+        $memoryLimit = $this->getSystemMemoryLimit();
         $memoryLimitBytes = intval($memoryLimit);
 
         if ($memoryLimitBytes == -1) {

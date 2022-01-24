@@ -3,7 +3,6 @@
   "description": "ExpressLogger is one of the fastest Psr 3 logger implementations",
   "type": "library",
   "license": "MIT",
-  "version": "1.0.0",
   "authors": [
     {
       "name": "Konstantin Deryabin",

@@ -80,9 +80,12 @@ class ExpressStrategyTest extends TestCase
      */
     public function testInitialization()
     {
-        ini_set('memory_limit', '10M');
-        $strategy = new ExpressStrategy(true, 10, 15);
-
+        $strategy = new class (true, 10, 15) extends ExpressStrategy {
+            protected function getSystemMemoryLimit(): string|false
+            {
+                return '10m';
+            }
+        };
         $this->assertEquals(10, $strategy->getMemWatchThreshold());
         $this->assertEquals(15, $strategy->getBufferSize());
         $this->assertTrue($strategy->isUseFlush());
@@ -94,9 +97,14 @@ class ExpressStrategyTest extends TestCase
      */
     public function testMemLimitM()
     {
-        ini_set('memory_limit', '10M');
-        $strategy = new ExpressStrategy();
-        $this->assertEquals(intval(10 * 0.6 * (1024 ** 2)), $strategy->getMemoryLimit());
+        $strategy = new class () extends ExpressStrategy {
+            protected function getSystemMemoryLimit(): string|false
+            {
+                return '100m';
+            }
+        };
+
+        $this->assertEquals(intval(100 * 0.6 * (1024 ** 2)), $strategy->getMemoryLimit());
     }
 
     /**
@@ -104,8 +112,13 @@ class ExpressStrategyTest extends TestCase
      */
     public function testMemLimitG()
     {
-        ini_set('memory_limit', '1G');
-        $strategy = new ExpressStrategy();
+        $strategy = new class () extends ExpressStrategy {
+            protected function getSystemMemoryLimit(): string|false
+            {
+                return '1G';
+            }
+        };
+
         $this->assertEquals(intval(1 * 0.6 * (1024 ** 3)), $strategy->getMemoryLimit());
     }
 
@@ -114,9 +127,14 @@ class ExpressStrategyTest extends TestCase
      */
     public function testMemLimitK()
     {
-        ini_set('memory_limit', '10000K');
-        $strategy = new ExpressStrategy();
-        $this->assertEquals(intval(10000 * 0.6 * (1024)), $strategy->getMemoryLimit());
+        $strategy = new class () extends ExpressStrategy {
+            protected function getSystemMemoryLimit(): string|false
+            {
+                return '1000K';
+            }
+        };
+
+        $this->assertEquals(intval(1000 * 0.6 * (1024)), $strategy->getMemoryLimit());
     }
 
     /**
@@ -124,8 +142,14 @@ class ExpressStrategyTest extends TestCase
      */
     public function testMemLimit()
     {
-        ini_set('memory_limit', '-1');
-        $strategy = new ExpressStrategy();
+
+        $strategy = new class () extends ExpressStrategy {
+            protected function getSystemMemoryLimit(): string|false
+            {
+                return '-1';
+            }
+        };
+
         $this->assertEquals(-1, $strategy->getMemoryLimit());
     }
 }
